@@ -1,11 +1,10 @@
 package pl.edu.pw.elka.pszt.goGame.artIntelligence;
 
 import pl.edu.pw.elka.pszt.goGame.model.Board;
-import pl.edu.pw.elka.pszt.goGame.model.Model;
 
-public class MCTSTree {
+public class MCTree {
 
-	private final Model model;
+	
 	
 	/**
 	 * @param detailLevel
