@@ -6,6 +6,7 @@ import java.util.List;
 public class Board {
 	public static final int BOARDSIZE = 5;
 	public static final char WHITESGN = 'W', BLACKSGN = 'B', EMPTYSGN = '+';
+	public static final int BOARDMASK = 0x01FFFFFF;
 	
 	private int whiteStones, blackStones, whiteNonstones, blackNonstones;
 	private int whitePoints, blackPoints;
@@ -33,7 +34,7 @@ public class Board {
 	}
 	
 	public void putStone(int position) throws RuntimeException {
-		if(position > BOARDSIZE * BOARDSIZE || position < 1)
+		if(position > BOARDSIZE * BOARDSIZE || position < 0)
 			throw new RuntimeException("Trying to put a stone outside the board !");
 		if(((whiteStones >> position) & 1) == 1 || ((blackStones >> position) & 1) == 1)
 			throw new RuntimeException("Trying to put a stone on occupied cross !");
@@ -61,19 +62,32 @@ public class Board {
 	}
 	
 	public void deleteStone(int position) throws RuntimeException {
-		if(position > BOARDSIZE * BOARDSIZE || position < 1)
+		if(position > BOARDSIZE * BOARDSIZE || position < 0)
 			throw new RuntimeException("Trying to delete a stone outside the board !");
 		if(((whiteStones >> position) & 1) == 0 && ((blackStones >> position) & 1) == 0 )
 			throw new RuntimeException("Trying to delete a stone from empty cross !");
 		
 		if (currentTurn == BLACKSGN) {
-			whiteStones &= ~(1 << position);
-			whiteNonstones |= (1 << position);
+			whiteStones &= ( ~(1 << position) & BOARDMASK);
+			whiteNonstones |= ( (1 << position) & BOARDMASK);
 		} else if(currentTurn == WHITESGN){
-			blackStones &= ~(1 << position);
-			blackNonstones |= (1 << position);
+			blackStones &= (~(1 << position) & BOARDMASK);
+			blackNonstones |= ((1 << position) & BOARDMASK);
 		} else
 			return;
+	}
+	
+	public void deletePlayerStone(int position) throws RuntimeException {
+		if(position > BOARDSIZE * BOARDSIZE || position < 0)
+			throw new RuntimeException("Trying to delete a stone outside the board !");
+		if(((whiteStones >> position) & 1) == 0 && ((blackStones >> position) & 1) == 0 )
+			throw new RuntimeException("Trying to delete a stone from empty cross !");
+		
+		if (currentTurn == WHITESGN) {
+			whiteStones &= ( ~(1 << position) & BOARDMASK);
+		} else if(currentTurn == BLACKSGN){
+			blackStones &= (~(1 << position) & BOARDMASK);
+		}
 	}
 	
 	public void deleteStones( int stones ) throws RuntimeException {
@@ -90,27 +104,30 @@ public class Board {
 	}
 	
 	static public int getBreath( int position, int allStones ) {
-		int breathMask = 0x000010A2; //0100010100001000...
+		int breathMask = 0x000008A2; //010001010001000...
 		int leftSideMask = 0x00108421; //1000010000100001000010000...
 		int rightSideMask = 0x01084210; //0000100001000010000100001...
 		int bottomSideMask = 0x01F00000; //000000000000000000001111100...
 		int topSideMask = 0x0000001F; //111110000...
 		
-		if( (( 1 << position ) & leftSideMask) == 1 ) {
-			breathMask &= ~leftSideMask;
+		if( (( 1 << position ) & leftSideMask) != 0 ) {
+			breathMask &= ((~0x00000020) & BOARDMASK);
 		}
-		if( (( 1 << position ) & rightSideMask) == 1 ) {
-			breathMask &= ~rightSideMask;
+		if( (( 1 << position ) & rightSideMask) != 0 ) {
+			breathMask &= ((~0x00000080) & BOARDMASK);
 		}
-		if( (( 1 << position ) & bottomSideMask) == 1 ) {
-			breathMask &= ~bottomSideMask;
+		if( (( 1 << position ) & bottomSideMask) != 0 ) {
+			breathMask &= ((~0x00000800) & BOARDMASK);
 		}
-		if( (( 1 << position ) & topSideMask) == 1 ) {
-			breathMask &= ~topSideMask;
+		if( (( 1 << position ) & topSideMask) != 0 ) {
+			breathMask &= ((~00000002) & BOARDMASK);
 		}
 		
-		breathMask = breathMask << (position - 6);
-		return (allStones & breathMask);
+		if( position < 6) 
+			breathMask = ( breathMask >> (6 - position) );
+		else
+			breathMask = ( breathMask << (position - 6) );
+		return ((~allStones & BOARDMASK) & breathMask);
 	}
 	
 	public int getBoardsize() {
@@ -138,7 +155,7 @@ public class Board {
 	}
 	
 	public int getCurrentPlayerFreeCrosses() {
-		return currentTurn == WHITESGN ? (whiteStones & ~(whiteNonstones)) : (blackStones & ~(blackNonstones));
+		return currentTurn == WHITESGN ? (~(getAllStones() | whiteNonstones)) & BOARDMASK  : (~(getAllStones() | blackNonstones)) & BOARDMASK;
 	}
 	
 	public void increaseCurrentPlayersPoints( int points ) {
@@ -160,7 +177,7 @@ public class Board {
 		int cross;
 		for (int y = 0; y < BOARDSIZE; ++y) {
 			for (int x = 0; x < BOARDSIZE; ++x) {
-				cross = BOARDSIZE * y + x + 1;
+				cross = BOARDSIZE * y + x;
 				if (((whiteStones >> cross) & 1) == 1)
 					string += WHITESGN + " ";
 				else if (((blackStones >> cross) & 1) == 1)

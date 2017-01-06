@@ -11,15 +11,16 @@ public class Model {
 	 * @return
 	 */
 	int getValidMoves(Board currentBoard) {
-		int validMoves = currentBoard.getCurrentPlayerFreeCrosses();		
+		int validMoves = currentBoard.getCurrentPlayerFreeCrosses();
 		int allStones = currentBoard.getAllStones();
 		for (int i = 0; i < Board.getCrosses(); ++i) {
-			if( (validMoves & ( 1 << i )) == 0 ) continue;			//only check empty crosses
-			if( Board.getBreath( i, allStones ) != 0 ) continue;	//stone has at least one breath, can be places there
-			currentBoard.putStone( (1 << i) );
+			if( (validMoves & ( 1 << i )) == 0 ) continue;	//only check empty crosses
+			System.out.println(Integer.toString(Board.getBreath( i, allStones ), 2));			
+			if( Board.getBreath( i, allStones ) != 0 ) continue;	//stone has at least one breath, can be placed there
+			currentBoard.putStone( i );
 			if( ( getDeletedStones( currentBoard ) & currentBoard.getCurrentPlayerStones() ) != 0 ) 
-				validMoves &= ~( 1 << i );							//putting stone there will delete some of players stones
-			currentBoard.deleteStone( i );
+				validMoves &= (~( 1 << i ) & Board.BOARDMASK);							//putting stone there will delete some of players stones
+			currentBoard.deletePlayerStone( i );
 		}
 		return validMoves;
 	}
@@ -87,19 +88,20 @@ public class Model {
 		return makeMove( board, position );
 	}
 	
-	private int getDeletedStones( int playersStones, int allStones ) {
+	private int getDeletedStones( int playerStones, int allStones ) {
 		boolean deleted = true;
 		while( deleted ) {
 			deleted = false;
 			for( int i = 0; i < Board.getCrosses(); ++i) {
-				if( (playersStones & ( 1 << i )) == 0 ) continue;
+				if( (playerStones & ( 1 << i )) == 0 ) continue;
 				if( Board.getBreath( i, allStones ) != 0) {
-					allStones &= ~(1 << i);
+					allStones &= (~(1 << i) & Board.BOARDMASK);
+					playerStones &= (~(1 << i) & Board.BOARDMASK);
 					deleted = true;
 				}
 			}
 		}
-		return allStones & playersStones;
+		return allStones & playerStones;
 	}
 	
 	private int getDeletedStones(Board currentBoard) {
@@ -111,7 +113,7 @@ public class Model {
 		
 		//first delete from all stones all deleted stones of opponent
 		deletedOpponentStones = getDeletedStones( opponentStones, allStones);
-		allStones &= ~deletedOpponentStones;
+		allStones &= (~deletedOpponentStones & Board.BOARDMASK);
 		//then check if after that some players stones aren't to be destroyed
 		deletedPlayerStones = getDeletedStones( playerStones, allStones );
 		
