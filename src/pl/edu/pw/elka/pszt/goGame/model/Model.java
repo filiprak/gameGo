@@ -1,9 +1,9 @@
 package pl.edu.pw.elka.pszt.goGame.model;
 
 import java.util.List;
-
 public class Model {
 	
+	Board board; //board of a game
 	
 	/**
 	 * get valid moves from any board
@@ -11,9 +11,15 @@ public class Model {
 	 * @return
 	 */
 	int getValidMoves(Board currentBoard) {
-		int validMoves = 0;		
-		for (int i = 0; i < currentBoard.getBoardsize() * currentBoard.getBoardsize(); ++i) {
-			
+		int validMoves = currentBoard.getCurrentPlayerFreeCrosses();		
+		int allStones = currentBoard.getAllStones();
+		for (int i = 0; i < Board.getCrosses(); ++i) {
+			if( (validMoves & ( 1 << i )) == 0 ) continue;			//only check empty crosses
+			if( Board.getBreath( i, allStones ) != 0 ) continue;	//stone has at least one breath, can be places there
+			currentBoard.putStone( (1 << i) );
+			if( ( getDeletedStones( currentBoard ) & currentBoard.getCurrentPlayerStones() ) != 0 ) 
+				validMoves &= ~( 1 << i );							//putting stone there will delete some of players stones
+			currentBoard.deleteStone( i );
 		}
 		return validMoves;
 	}
@@ -23,6 +29,10 @@ public class Model {
 	 * @return
 	 */
 	public int getValidMoves() {
+		return getValidMoves( board );
+	}
+	
+	public int getWinner( Board currentBoard ) {
 		return 0;
 	}
 	
@@ -31,6 +41,10 @@ public class Model {
 	 * @return
 	 */
 	public int getWinner() {
+		return getWinner( board );
+	}
+	
+	public int getPoints(int player, Board currentBoard) {
 		return 0;
 	}
 	
@@ -39,30 +53,29 @@ public class Model {
 	 * @return
 	 */
 	public int getPoints(int player) {
-		return 0;
+		return getPoints(player, board);
+	}
+	
+	public boolean isEnded(Board currentBoard) {
+		return false;
 	}
 	
 	/**
 	 * @return
 	 */
 	public boolean isEnded() {
-		return false;
+		return isEnded( board );
 	}
 	
 	/**
 	 * @param board
 	 * @return
 	 */
-	public boolean isEnded(final Board board) {
-		return false;
-	}
-	
-	/**
-	 * @param board
-	 * @return
-	 */
-	public Board makeMove(Board board, int position) {
-		return null;
+	public boolean makeMove(Board currentBoard, int position) {
+		board.putStone( position );
+		int deletedStones = getDeletedStones( currentBoard );
+		currentBoard.deleteStones( deletedStones );
+		return true;
 	}
 	
 	/**
@@ -71,10 +84,37 @@ public class Model {
 	 * @return 
 	 */
 	public boolean makeMove(int position) {
-		return false;
+		return makeMove( board, position );
 	}
 	
-	private int getDeletedStones(Board board) {
-		return 0;
+	private int getDeletedStones( int playersStones, int allStones ) {
+		boolean deleted = true;
+		while( deleted ) {
+			deleted = false;
+			for( int i = 0; i < Board.getCrosses(); ++i) {
+				if( (playersStones & ( 1 << i )) == 0 ) continue;
+				if( Board.getBreath( i, allStones ) != 0) {
+					allStones &= ~(1 << i);
+					deleted = true;
+				}
+			}
+		}
+		return allStones & playersStones;
+	}
+	
+	private int getDeletedStones(Board currentBoard) {
+		int deletedOpponentStones = 0;
+		int deletedPlayerStones = 0;
+		int allStones = currentBoard.getAllStones();
+		int opponentStones = currentBoard.getCurrentOpponentStones();
+		int playerStones = currentBoard.getCurrentPlayerStones();
+		
+		//first delete from all stones all deleted stones of opponent
+		deletedOpponentStones = getDeletedStones( opponentStones, allStones);
+		allStones &= ~deletedOpponentStones;
+		//then check if after that some players stones aren't to be destroyed
+		deletedPlayerStones = getDeletedStones( playerStones, allStones );
+		
+		return (deletedPlayerStones | deletedOpponentStones);
 	}
 }

@@ -6,7 +6,6 @@ import java.util.List;
 public class Board {
 	public static final int BOARDSIZE = 5;
 	public static final char WHITESGN = 'W', BLACKSGN = 'B', EMPTYSGN = '+';
-	public static final int DELETE_POINT = 1;
 	
 	private int whiteStones, blackStones, whiteNonstones, blackNonstones;
 	private int whitePoints, blackPoints;
@@ -33,7 +32,7 @@ public class Board {
 		blackMoves = b.blackMoves;
 	}
 	
-	public void putStone(int position, char color) throws RuntimeException {
+	public void putStone(int position) throws RuntimeException {
 		if(position > BOARDSIZE * BOARDSIZE || position < 1)
 			throw new RuntimeException("Trying to put a stone outside the board !");
 		if(((whiteStones >> position) & 1) == 1 || ((blackStones >> position) & 1) == 1)
@@ -43,19 +42,22 @@ public class Board {
 		if( currentTurn == BLACKSGN && ((1 << position) & blackNonstones) != 0 )
 			throw new RuntimeException("Trying to put a stone on a restricted cross !");
 		
-		if (color == WHITESGN) {
+		if (currentTurn == WHITESGN) {
 			whiteStones |= (1 << position);
 		} 
-		else if(color == BLACKSGN){
+		else if(currentTurn == BLACKSGN){
 			blackStones |= (1 << position);
 		}
-		
+	}
+	
+	public char switchTurn() {
 		if( currentTurn == WHITESGN ) {
 			currentTurn = blackMoves ? BLACKSGN : WHITESGN;
 		} 
 		else if( currentTurn == BLACKSGN ) {
 			currentTurn = whiteMoves ? WHITESGN : BLACKSGN;
 		}
+		return currentTurn;
 	}
 	
 	public void deleteStone(int position) throws RuntimeException {
@@ -64,16 +66,20 @@ public class Board {
 		if(((whiteStones >> position) & 1) == 0 && ((blackStones >> position) & 1) == 0 )
 			throw new RuntimeException("Trying to delete a stone from empty cross !");
 		
-		if (currentTurn == WHITESGN) {
+		if (currentTurn == BLACKSGN) {
 			whiteStones &= ~(1 << position);
 			whiteNonstones |= (1 << position);
-			blackPoints += DELETE_POINT;
-		} else if(currentTurn == BLACKSGN){
+		} else if(currentTurn == WHITESGN){
 			blackStones &= ~(1 << position);
 			blackNonstones |= (1 << position);
-			whitePoints += DELETE_POINT;
 		} else
 			return;
+	}
+	
+	public void deleteStones( int stones ) throws RuntimeException {
+		for( int i = 0; i < BOARDSIZE * BOARDSIZE; ++i) {
+			if( (stones & ( 1 << i)) == 1 ) deleteStone( i ) ;
+		}
 	}
 	
 	public void clear() {
@@ -83,7 +89,7 @@ public class Board {
 		blackNonstones = 0x00000000;
 	}
 	
-	int getBreath( int position, int allStones ) {
+	static public int getBreath( int position, int allStones ) {
 		int breathMask = 0x000010A2; //0100010100001000...
 		int leftSideMask = 0x00108421; //1000010000100001000010000...
 		int rightSideMask = 0x01084210; //0000100001000010000100001...
@@ -103,7 +109,7 @@ public class Board {
 			breathMask &= ~topSideMask;
 		}
 		
-		breathMask = breathMask << position;
+		breathMask = breathMask << (position - 6);
 		return (allStones & breathMask);
 	}
 	
@@ -135,7 +141,20 @@ public class Board {
 		return currentTurn == WHITESGN ? (whiteStones & ~(whiteNonstones)) : (blackStones & ~(blackNonstones));
 	}
 	
-	@Override
+	public void increaseCurrentPlayersPoints( int points ) {
+		if( currentTurn == WHITESGN ) {
+			whitePoints += points;
+		} 
+		else if( currentTurn == BLACKSGN ) {
+			blackPoints += points;
+		}
+	}
+	
+	public static int getCrosses() {
+		return BOARDSIZE * BOARDSIZE;
+	}
+	
+	//@Override
 	public String toString() {
 		String string = new String("");
 		int cross;
