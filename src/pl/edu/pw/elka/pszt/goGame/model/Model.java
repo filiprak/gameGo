@@ -6,22 +6,28 @@ public class Model {
 	
 	
 	/**
-	 * @return
-	 */
-	public List<Integer> getValidMoves() {
-		return null;
-		
-	}
-	
-	/**
+	 * get valid moves from any board
 	 * @param board
 	 * @return
 	 */
-	public List<Integer> getValidMoves(final Board board) {
-		return null;
+	int getValidMoves(Board currentBoard) {
+		int validMoves = 0;		
+		for (int i = 0; i < currentBoard.getBoardsize() * currentBoard.getBoardsize(); ++i) {
+			
+		}
+		return validMoves;
 	}
 	
 	/**
+	 * get valid moves from current board in model
+	 * @return
+	 */
+	public int getValidMoves() {
+		return 0;
+	}
+	
+	/**
+	 * count points and get a winner 
 	 * @return
 	 */
 	public int getWinner() {
@@ -55,7 +61,20 @@ public class Model {
 	 * @param board
 	 * @return
 	 */
-	public Board makeMove(Board board) {
+	public Board makeMove(Board board, int position) {
 		return null;
+	}
+	
+	/**
+	 * make move on models board
+	 * @param position
+	 * @return 
+	 */
+	public boolean makeMove(int position) {
+		return false;
+	}
+	
+	private int getDeletedStones(Board board) {
+		return 0;
 	}
 }
