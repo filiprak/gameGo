@@ -10,12 +10,12 @@ public class Model {
 	 * @param board
 	 * @return
 	 */
-	int getValidMoves(Board currentBoard) {
+	public static int getValidMoves(Board currentBoard) {
 		int validMoves = currentBoard.getCurrentPlayerFreeCrosses();
 		int allStones = currentBoard.getAllStones();
 		for (int i = 0; i < Board.getCrosses(); ++i) {
 			if( (validMoves & ( 1 << i )) == 0 ) continue;	//only check empty crosses
-			System.out.println(Integer.toString(Board.getBreath( i, allStones ), 2));			
+			//System.out.println(Integer.toString(Board.getBreath( i, allStones ), 2));			
 			if( Board.getBreath( i, allStones ) != 0 ) continue;	//stone has at least one breath, can be placed there
 			currentBoard.putStone( i );
 			if( ( getDeletedStones( currentBoard ) & currentBoard.getCurrentPlayerStones() ) != 0 ) 
@@ -88,7 +88,7 @@ public class Model {
 		return makeMove( board, position );
 	}
 	
-	private int getDeletedStones( int playerStones, int allStones ) {
+	private static int getDeletedStones( int playerStones, int allStones ) {
 		boolean deleted = true;
 		while( deleted ) {
 			deleted = false;
@@ -104,7 +104,7 @@ public class Model {
 		return allStones & playerStones;
 	}
 	
-	private int getDeletedStones(Board currentBoard) {
+	private static int getDeletedStones(Board currentBoard) {
 		int deletedOpponentStones = 0;
 		int deletedPlayerStones = 0;
 		int allStones = currentBoard.getAllStones();
