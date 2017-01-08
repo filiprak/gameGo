@@ -7,8 +7,6 @@ public class Board {
 	public static final int BOARDSIZE = 5;
 	public static final char WHITESGN = 'W', BLACKSGN = 'B', EMPTYSGN = '+';
 	public static final int BOARDMASK = 0x01FFFFFF;
-	public static final int WHITEPLAYER = 25;
-	public static final int BLACKPLAYER = 26;
 	public static final int DELETED_STONE_POINT = 1;
 	
 	private int whiteStones, blackStones, whiteNonstones, blackNonstones;
@@ -78,8 +76,8 @@ public class Board {
 		} else if(currentTurn == WHITESGN){
 			blackStones &= (~(1 << position) & BOARDMASK);
 			blackNonstones |= ((1 << position) & BOARDMASK);
-		} else
-			return;
+		}
+		increaseCurrentPlayersPoints(DELETED_STONE_POINT);
 	}
 	
 	public void deletePlayerStone(int position) throws RuntimeException {
@@ -96,8 +94,11 @@ public class Board {
 	}
 	
 	public void deleteStones( int stones ) throws RuntimeException {
-		for( int i = 0; i < BOARDSIZE * BOARDSIZE; ++i) {
-			if( (stones & ( 1 << i)) == 1 ) deleteStone( i ) ;
+		for( int i = 0; i < BOARDSIZE * BOARDSIZE; ++i)
+		{
+			if( (stones & ( 1 << i)) != 0 ) {
+				deleteStone( i ) ;
+			}
 		}
 	}
 	
@@ -134,6 +135,34 @@ public class Board {
 			breathMask = ( breathMask << (position - 6) );
 		return ((~allStones & BOARDMASK) & breathMask);
 	}
+	
+	static public int getNeighbour( int position, int allStones ) {
+		int breathMask = 0x000008A2; //010001010001000...
+		int leftSideMask = 0x00108421; //1000010000100001000010000...
+		int rightSideMask = 0x01084210; //0000100001000010000100001...
+		int bottomSideMask = 0x01F00000; //000000000000000000001111100...
+		int topSideMask = 0x0000001F; //111110000...
+		
+		if( (( 1 << position ) & leftSideMask) != 0 ) {
+			breathMask &= ((~0x00000020) & BOARDMASK);
+		}
+		if( (( 1 << position ) & rightSideMask) != 0 ) {
+			breathMask &= ((~0x00000080) & BOARDMASK);
+		}
+		if( (( 1 << position ) & bottomSideMask) != 0 ) {
+			breathMask &= ((~0x00000800) & BOARDMASK);
+		}
+		if( (( 1 << position ) & topSideMask) != 0 ) {
+			breathMask &= ((~00000002) & BOARDMASK);
+		}
+		
+		if( position < 6) 
+			breathMask = ( breathMask >> (6 - position) );
+		else
+			breathMask = ( breathMask << (position - 6) );
+		return ((allStones & BOARDMASK) & breathMask);
+	}
+	
 	
 	public int getBoardsize() {
 		return BOARDSIZE;
@@ -182,15 +211,16 @@ public class Board {
 	
 	public void setValidMoves( int vM ) {
 		validMoves = vM;
-		if( whiteMoves ) validMoves |= (1 << WHITEPLAYER);
-		if( blackMoves ) validMoves |= (1 << BLACKPLAYER);
+		validMoves |= (1 << getCrosses());
+	}
+	
+	public void resignCurrentPlayer() {
+		if( currentTurn == WHITESGN ) whiteMoves = false;
+		if( currentTurn == BLACKSGN ) blackMoves = false;
 	}
 	
 	public boolean isEnded() {
-		if((BLACKPLAYER == 1) && (WHITEPLAYER == 1)) //both players pass'ed
-			return true;
-		else
-			return false;
+		return (!whiteMoves && !blackMoves); //both players pass'ed
 	}
 	
 	//@Override
@@ -210,7 +240,7 @@ public class Board {
 			string += "\n";
 		}
 		return string;
-}
+	}
 
 	public int getWhiteStones() {
 		return whiteStones;

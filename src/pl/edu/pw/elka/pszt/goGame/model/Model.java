@@ -6,6 +6,11 @@ public class Model {
 	Board board; //board of a game
 	public static final int WHITEPLAYER = 0, BLACKPLAYER = 1; //int's for players
 	
+	public Model() {
+		board = new Board();
+		setValidMoves(board);
+	}
+	
 	/**
 	 * get valid moves from any board
 	 * @param board
@@ -28,7 +33,6 @@ public class Model {
 	}
 	
 	public int getWinner( Board currentBoard ) {
-		countPoints (currentBoard);
 		if ((currentBoard.getBlackPoints()) < (currentBoard.getWhitePoints()))
 			return WHITEPLAYER;
 		else if((currentBoard.getBlackPoints()) > (currentBoard.getWhitePoints()))
@@ -68,24 +72,28 @@ public class Model {
 					currentBoard.setBlackPoints(currentBoard.getBlackPoints() + 1);
 
 				else if ((((currentBoard.getWhiteNonstones() >> cross) & 1) == 1) && (((currentBoard.getBlackNonstones() >> cross) & 1) == 0)) { //empty cross and invalid for whites
-					if((Board.getBreath(cross, currentBoard.getBlackStones())) > 0)	//got black neighbours
+					if((Board.getNeighbour(cross, currentBoard.getBlackStones())) > 0)	//got black neighbours
 						currentBoard.setBlackPoints(currentBoard.getBlackPoints() + 1);
 				}
 				else if ((((currentBoard.getWhiteNonstones() >> cross) & 1) == 0) && (((currentBoard.getBlackNonstones() >> cross) & 1) == 1)) { //empty cross and invalid for blacks
-					if((Board.getBreath(cross, currentBoard.getWhiteStones())) > 0) //got white neighbours
+					if((Board.getNeighbour(cross, currentBoard.getWhiteStones())) > 0) //got white neighbours
 						currentBoard.setWhitePoints(currentBoard.getWhitePoints() + 1);
 				}
 				//empty cross invalid for both or empty cross valid for both
-				else if((countOnes(Board.getBreath(cross, currentBoard.getBlackStones()))) > (countOnes(Board.getBreath(cross, currentBoard.getWhiteStones())))) //got more black neighbours
+				else if((countOnes(Board.getNeighbour(cross, currentBoard.getBlackStones()))) > (countOnes(Board.getNeighbour(cross, currentBoard.getWhiteStones())))) //got more black neighbours
 								currentBoard.setBlackPoints(currentBoard.getBlackPoints() + 1);
-				else if((countOnes(Board.getBreath(cross, currentBoard.getBlackStones()))) < (countOnes(Board.getBreath(cross, currentBoard.getWhiteStones())))) // got more white neighbours
+				else if((countOnes(Board.getNeighbour(cross, currentBoard.getBlackStones()))) < (countOnes(Board.getNeighbour(cross, currentBoard.getWhiteStones())))) // got more white neighbours
 								currentBoard.setWhitePoints(currentBoard.getWhitePoints() + 1);
 			}
 		}
 	}
 	
+	public void countPoints () {
+		countPoints(board);
+	}
+	
+	
 	public int getPoints(int player, Board currentBoard) {
-		countPoints(currentBoard);
 		if (player == WHITEPLAYER)
 			return currentBoard.getWhitePoints();
 		else if (player == BLACKPLAYER)
@@ -102,7 +110,6 @@ public class Model {
 	}
 	
 	public boolean isEnded(Board currentBoard) {
-		
 		return currentBoard.isEnded();
 	}
 	
@@ -110,7 +117,6 @@ public class Model {
 	 * @return
 	 */
 	public boolean isEnded() {
-		
 		return isEnded( board );
 	}
 	
@@ -119,9 +125,15 @@ public class Model {
 	 * @return
 	 */
 	public boolean makeMove(Board currentBoard, int position) {
-		board.putStone( position );
-		int deletedStones = getDeletedStones( currentBoard );
-		currentBoard.deleteStones( deletedStones );
+		if( position >= Board.getCrosses() ) {
+			board.resignCurrentPlayer();
+		}
+		else {
+			board.putStone( position );
+			int deletedStones = getDeletedStones( currentBoard );
+			currentBoard.deleteStones( deletedStones );
+		}
+		currentBoard.switchTurn();
 		setValidMoves(currentBoard);
 		return true;
 	}
@@ -167,12 +179,13 @@ public class Model {
 		return (deletedPlayerStones | deletedOpponentStones);
 	}
 
-	public String getBoard(Board currentBoard) {
+	public String getBoard() {
+		return board.toString();
+	}
 	
-		return currentBoard.toString();
-
+	public int getValidMoves(){
+		return board.getValidMoves();
 	}
-	public int getValidMoves(Board currentBoard){
-		return currentBoard.getValidMoves();
-	}
+	
+	
 }
