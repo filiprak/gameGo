@@ -33,6 +33,7 @@ public class Board {
 		currentTurn = b.currentTurn;
 		whiteMoves = b.whiteMoves;
 		blackMoves = b.blackMoves;
+		validMoves = b.validMoves;
 }
 	
 

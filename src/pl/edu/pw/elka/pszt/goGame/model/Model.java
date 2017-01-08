@@ -32,7 +32,7 @@ public class Model {
 		return validMoves;
 	}
 	
-	public int getWinner( Board currentBoard ) {
+	public static int getWinner( Board currentBoard ) {
 		if ((currentBoard.getBlackPoints()) < (currentBoard.getWhitePoints()))
 			return WHITEPLAYER;
 		else if((currentBoard.getBlackPoints()) > (currentBoard.getWhitePoints()))
@@ -124,12 +124,12 @@ public class Model {
 	 * @param board
 	 * @return
 	 */
-	public boolean makeMove(Board currentBoard, int position) {
+	public static boolean makeMove(Board currentBoard, int position) {
 		if( position >= Board.getCrosses() ) {
-			board.resignCurrentPlayer();
+			currentBoard.resignCurrentPlayer();
 		}
 		else {
-			board.putStone( position );
+			currentBoard.putStone( position );
 			int deletedStones = getDeletedStones( currentBoard );
 			currentBoard.deleteStones( deletedStones );
 		}

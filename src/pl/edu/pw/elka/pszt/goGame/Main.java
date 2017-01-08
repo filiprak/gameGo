@@ -12,7 +12,16 @@ public class Main {
 		Model model = new Model();
 		Scanner reader = new Scanner(System.in);
 		
-		while(!model.isEnded()) {
+		Board b = new Board();
+		for (int i = 0; i < 25; i = i + 7) {
+			Model.makeMove(b, i);
+		}
+		System.out.println(b.toString());
+		MCTree tree = new MCTree(b);
+		tree.makeMove();
+		System.out.println(tree.toShortString());
+
+		/*while(!model.isEnded()) {
 			System.out.println(model.getBoard());
 			System.out.println("Enter a number: ");
 			int n = reader.nextInt(); // Scans the next token of the input as an int.
@@ -28,6 +37,6 @@ public class Main {
 		System.out.print("White player: ");
 		System.out.println(model.getPoints(0));
 		System.out.print("Black player: ");
-		System.out.println(model.getPoints(1));
+		System.out.println(model.getPoints(1));*/
 	}
 }
