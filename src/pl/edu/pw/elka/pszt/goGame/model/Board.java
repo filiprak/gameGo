@@ -186,6 +186,13 @@ public class Board {
 		if( blackMoves ) validMoves |= (1 << BLACKPLAYER);
 	}
 	
+	public boolean isEnded() {
+		if((BLACKPLAYER == 1) && (WHITEPLAYER == 1)) //both players pass'ed
+			return true;
+		else
+			return false;
+	}
+	
 	//@Override
 	public String toString() {
 		String string = new String("");

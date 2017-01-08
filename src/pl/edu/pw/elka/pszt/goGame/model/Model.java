@@ -4,7 +4,7 @@ import java.util.List;
 public class Model {
 	
 	Board board; //board of a game
-	public static final int WHITEPLAYER = 0, BLACKPLAYER = 1;
+	public static final int WHITEPLAYER = 0, BLACKPLAYER = 1; //int's for players
 	
 	/**
 	 * get valid moves from any board
@@ -102,13 +102,15 @@ public class Model {
 	}
 	
 	public boolean isEnded(Board currentBoard) {
-		return false;
+		
+		return currentBoard.isEnded();
 	}
 	
 	/**
 	 * @return
 	 */
 	public boolean isEnded() {
+		
 		return isEnded( board );
 	}
 	
@@ -163,5 +165,14 @@ public class Model {
 		deletedPlayerStones = getDeletedStones( playerStones, allStones );
 		
 		return (deletedPlayerStones | deletedOpponentStones);
+	}
+
+	public String getBoard(Board currentBoard) {
+	
+		return currentBoard.toString();
+
+	}
+	public int getValidMoves(Board currentBoard){
+		return currentBoard.getValidMoves();
 	}
 }
