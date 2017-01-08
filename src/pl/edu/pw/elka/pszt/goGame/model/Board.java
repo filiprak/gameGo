@@ -7,11 +7,15 @@ public class Board {
 	public static final int BOARDSIZE = 5;
 	public static final char WHITESGN = 'W', BLACKSGN = 'B', EMPTYSGN = '+';
 	public static final int BOARDMASK = 0x01FFFFFF;
+	public static final int WHITEPLAYER = 25;
+	public static final int BLACKPLAYER = 26;
+	public static final int DELETED_STONE_POINT = 1;
 	
 	private int whiteStones, blackStones, whiteNonstones, blackNonstones;
 	private int whitePoints, blackPoints;
 	private boolean whiteMoves, blackMoves;
 	private char currentTurn;
+	private int validMoves;
 	
 	public Board() {
 		whiteStones = 0x00000000;
@@ -170,6 +174,16 @@ public class Board {
 	
 	public static int getCrosses() {
 		return BOARDSIZE * BOARDSIZE;
+	}
+	
+	public int getValidMoves() {
+		return validMoves;
+	}
+	
+	public void setValidMoves( int vM ) {
+		validMoves = vM;
+		if( whiteMoves ) validMoves |= (1 << WHITEPLAYER);
+		if( blackMoves ) validMoves |= (1 << BLACKPLAYER);
 	}
 	
 	//@Override

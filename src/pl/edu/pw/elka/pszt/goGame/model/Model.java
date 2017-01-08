@@ -11,7 +11,7 @@ public class Model {
 	 * @param board
 	 * @return
 	 */
-	public static int getValidMoves(Board currentBoard) {
+	public static int setValidMoves(Board currentBoard) {
 		int validMoves = currentBoard.getCurrentPlayerFreeCrosses();
 		int allStones = currentBoard.getAllStones();
 		for (int i = 0; i < Board.getCrosses(); ++i) {
@@ -23,15 +23,8 @@ public class Model {
 				validMoves &= (~( 1 << i ) & Board.BOARDMASK);							//putting stone there will delete some of players stones
 			currentBoard.deletePlayerStone( i );
 		}
+		currentBoard.setValidMoves(validMoves);
 		return validMoves;
-	}
-	
-	/**
-	 * get valid moves from current board in model
-	 * @return
-	 */
-	public int getValidMoves() {
-		return getValidMoves( board );
 	}
 	
 	public int getWinner( Board currentBoard ) {
@@ -49,9 +42,7 @@ public class Model {
 	 * @return
 	 */
 	public int getWinner() {
-		
 		return getWinner( board );
-		
 	}
 	
 	public int countOnes(int mask)
@@ -68,8 +59,6 @@ public class Model {
 	public void countPoints (Board currentBoard)
 	{
 		int cross;
-		
-		
 		for (int y = 0; y < Board.BOARDSIZE; ++y) {
 			for (int x = 0; x < Board.BOARDSIZE; ++x) {
 				cross = Board.BOARDSIZE * y + x;
@@ -91,10 +80,7 @@ public class Model {
 								currentBoard.setBlackPoints(currentBoard.getBlackPoints() + 1);
 				else if((countOnes(Board.getBreath(cross, currentBoard.getBlackStones()))) < (countOnes(Board.getBreath(cross, currentBoard.getWhiteStones())))) // got more white neighbours
 								currentBoard.setWhitePoints(currentBoard.getWhitePoints() + 1);
-				
-					
 			}
-		
 		}
 	}
 	
@@ -104,9 +90,6 @@ public class Model {
 			return currentBoard.getWhitePoints();
 		else if (player == BLACKPLAYER)
 			return currentBoard.getBlackPoints();
-		
-		
-
 		return 0;
 	}
 	
@@ -137,6 +120,7 @@ public class Model {
 		board.putStone( position );
 		int deletedStones = getDeletedStones( currentBoard );
 		currentBoard.deleteStones( deletedStones );
+		setValidMoves(currentBoard);
 		return true;
 	}
 	
