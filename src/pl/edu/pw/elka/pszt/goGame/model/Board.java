@@ -31,8 +31,9 @@ public class Board {
 		currentTurn = b.currentTurn;
 		whiteMoves = b.whiteMoves;
 		blackMoves = b.blackMoves;
-	}
+}
 	
+
 	public void putStone(int position) throws RuntimeException {
 		if(position > BOARDSIZE * BOARDSIZE || position < 0)
 			throw new RuntimeException("Trying to put a stone outside the board !");
@@ -188,5 +189,53 @@ public class Board {
 			string += "\n";
 		}
 		return string;
+}
+
+	public int getWhiteStones() {
+		return whiteStones;
+	}
+
+	public void setWhiteStones(int whiteStones) {
+		this.whiteStones = whiteStones;
+	}
+
+	public int getWhitePoints() {
+		return whitePoints;
+	}
+
+	public void setWhitePoints(int whitePoints) {
+		this.whitePoints = whitePoints;
+	}
+
+	public int getBlackStones() {
+		return blackStones;
+	}
+
+	public void setBlackStones(int blackStones) {
+		this.blackStones = blackStones;
+	}
+
+	public int getBlackPoints() {
+		return blackPoints;
+	}
+
+	public void setBlackPoints(int blackPoints) {
+		this.blackPoints = blackPoints;
+	}
+
+	public int getWhiteNonstones() {
+		return whiteNonstones;
+	}
+
+	public void setWhiteNonstones(int whiteNonstones) {
+		this.whiteNonstones = whiteNonstones;
+	}
+	
+	public int getBlackNonstones() {
+		return blackNonstones;
+	}
+
+	public void setBlackNonstones(int blackNonstones) {
+		this.blackNonstones = blackNonstones;
 	}
 }

@@ -4,6 +4,7 @@ import java.util.List;
 public class Model {
 	
 	Board board; //board of a game
+	public static final int WHITEPLAYER = 0, BLACKPLAYER = 1;
 	
 	/**
 	 * get valid moves from any board
@@ -34,6 +35,12 @@ public class Model {
 	}
 	
 	public int getWinner( Board currentBoard ) {
+		countPoints (currentBoard);
+		if ((currentBoard.getBlackPoints()) < (currentBoard.getWhitePoints()))
+			return WHITEPLAYER;
+		else if((currentBoard.getBlackPoints()) > (currentBoard.getWhitePoints()))
+			return BLACKPLAYER;
+
 		return 0;
 	}
 	
@@ -42,10 +49,64 @@ public class Model {
 	 * @return
 	 */
 	public int getWinner() {
+		
 		return getWinner( board );
+		
+	}
+	
+	public int countOnes(int mask)
+	{
+		int nr = 0;
+		for (int i = 0; i<25; ++i)
+		{
+			if(((mask >> i) & 1) == 1)
+				nr += 1;
+		}
+		return nr;
+	}
+	
+	public void countPoints (Board currentBoard)
+	{
+		int cross;
+		
+		
+		for (int y = 0; y < Board.BOARDSIZE; ++y) {
+			for (int x = 0; x < Board.BOARDSIZE; ++x) {
+				cross = Board.BOARDSIZE * y + x;
+				if (((currentBoard.getWhiteStones() >> cross) & 1) == 1) //white stone on cross
+					currentBoard.setWhitePoints(currentBoard.getWhitePoints() + 1);
+				else if (((currentBoard.getBlackStones() >> cross) & 1) == 1) //black stone on cross
+					currentBoard.setBlackPoints(currentBoard.getBlackPoints() + 1);
+
+				else if ((((currentBoard.getWhiteNonstones() >> cross) & 1) == 1) && (((currentBoard.getBlackNonstones() >> cross) & 1) == 0)) { //empty cross and invalid for whites
+					if((Board.getBreath(cross, currentBoard.getBlackStones())) > 0)	//got black neighbours
+						currentBoard.setBlackPoints(currentBoard.getBlackPoints() + 1);
+				}
+				else if ((((currentBoard.getWhiteNonstones() >> cross) & 1) == 0) && (((currentBoard.getBlackNonstones() >> cross) & 1) == 1)) { //empty cross and invalid for blacks
+					if((Board.getBreath(cross, currentBoard.getWhiteStones())) > 0) //got white neighbours
+						currentBoard.setWhitePoints(currentBoard.getWhitePoints() + 1);
+				}
+				//empty cross invalid for both or empty cross valid for both
+				else if((countOnes(Board.getBreath(cross, currentBoard.getBlackStones()))) > (countOnes(Board.getBreath(cross, currentBoard.getWhiteStones())))) //got more black neighbours
+								currentBoard.setBlackPoints(currentBoard.getBlackPoints() + 1);
+				else if((countOnes(Board.getBreath(cross, currentBoard.getBlackStones()))) < (countOnes(Board.getBreath(cross, currentBoard.getWhiteStones())))) // got more white neighbours
+								currentBoard.setWhitePoints(currentBoard.getWhitePoints() + 1);
+				
+					
+			}
+		
+		}
 	}
 	
 	public int getPoints(int player, Board currentBoard) {
+		countPoints(currentBoard);
+		if (player == WHITEPLAYER)
+			return currentBoard.getWhitePoints();
+		else if (player == BLACKPLAYER)
+			return currentBoard.getBlackPoints();
+		
+		
+
 		return 0;
 	}
 	
