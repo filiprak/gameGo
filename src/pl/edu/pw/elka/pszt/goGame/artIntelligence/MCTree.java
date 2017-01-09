@@ -51,7 +51,9 @@ public class MCTree {
 		for (int i = 0; i < 30000; ++i) {
 			// choose child with maximum ratio
 			MCNode node = maxRatioChild();
-
+			if( node == root ) {
+				break;
+			}
 			// add new node
 			ArrayList<Integer> moves = new ArrayList<Integer>();
 			int validMoves = node.getBoard().getValidMoves();
@@ -74,11 +76,15 @@ public class MCTree {
 			MCNode newNode = new MCNode(node, childBoard);
 			newNode.number = ++num;
 			node.addChild(newNode);
+			
+			if( newNode.getBoard().isEnded() ) {
+				newNode.end();
+			}
 
 			Board simulBoard = new Board(newNode.getBoard());
 			// simulate
 			int result = simulate(simulBoard);
-
+			
 			MCNode current = newNode;
 
 			// propagate upwards
@@ -156,13 +162,25 @@ public class MCTree {
 		while (!node.children.isEmpty()) {
 			float maxRatio = -1;
 			for (MCNode child : node.children) {
+				if( child.isEnded() ) {
+					continue;
+				}
 				float rat = calculateRatio(node, child);
 				if (rat > maxRatio) {
 					bestChild = child;
 					maxRatio = rat;
 				}
 			}
-			node = bestChild;
+			if( maxRatio == -1 ) {
+				if( node == root ) {	//all children of root ended their games, return root
+					return root;
+				}
+				node.end();
+				node = node.parent;
+			}
+			else {
+				node = bestChild;
+			}
 		}
 		return node;
 	}

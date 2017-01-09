@@ -18,6 +18,10 @@ public class Model {
 	 * @return
 	 */
 	public static int setValidMoves(Board currentBoard) {
+		if( currentBoard.isEnded() ) {
+			currentBoard.setValidMoves(0);
+			return 0;
+		}
 		int validMoves = currentBoard.getCurrentPlayerFreeCrosses();
 		int allStones = currentBoard.getAllStones();
 		for (int i = 0; i < Board.getCrosses(); ++i) {

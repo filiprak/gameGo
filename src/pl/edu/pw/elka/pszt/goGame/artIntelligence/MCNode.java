@@ -15,12 +15,15 @@ public class MCNode {
 	public int number;
 	public int moveNum;
 	
+	private boolean ended;
+	
 	public MCNode(MCNode parent, Board board) {
 		wonGames = 0;
 		lostGames = 0;
 		children = new ArrayList<MCNode>();
 		this.parent = parent;
 		this.board = board;
+		this.ended = false;
 	}
 
 	public void addChild(MCNode child) {
@@ -30,7 +33,14 @@ public class MCNode {
 	public Board getBoard() {
 		return board;
 	}
-
+	
+	public void end() {
+		ended = true;
+	}
+	
+	public boolean isEnded() {
+		return ended;
+	}
 
 	public void setBoard(Board board) {
 		this.board = board;
