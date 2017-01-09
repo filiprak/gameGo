@@ -6,8 +6,8 @@ public class Model {
 	Board board; //board of a game
 	public static final int WHITEPLAYER = 0, BLACKPLAYER = 1; //int's for players
 	
-	public Model() {
-		board = new Board();
+	public Model(char firstPlayer) {
+		board = new Board(firstPlayer);
 		setValidMoves(board);
 	}
 	
@@ -144,6 +144,7 @@ public class Model {
 	 * @return 
 	 */
 	public boolean makeMove(int position) {
+		System.out.println("move: " + position + " ");
 		return makeMove( board, position );
 	}
 	
@@ -181,6 +182,10 @@ public class Model {
 
 	public String getBoard() {
 		return board.toString();
+	}
+	
+	public Board getBoardObject() {
+		return board;
 	}
 	
 	public int getValidMoves(){

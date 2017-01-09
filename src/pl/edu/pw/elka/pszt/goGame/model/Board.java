@@ -12,15 +12,24 @@ public class Board {
 	private int whiteStones, blackStones, whiteNonstones, blackNonstones;
 	private int whitePoints, blackPoints;
 	private boolean whiteMoves, blackMoves;
+	
+	public boolean isWhiteMoves() {
+		return whiteMoves;
+	}
+
+	public boolean isBlackMoves() {
+		return blackMoves;
+	}
+
 	private char currentTurn;
 	private int validMoves;
 	
-	public Board() {
+	public Board(char firstPlayer) {
 		whiteStones = 0x00000000;
 		blackStones = 0x00000000;
 		whiteNonstones = 0x00000000;
 		blackNonstones = 0x00000000;
-		currentTurn = BLACKSGN;
+		currentTurn = firstPlayer;
 		whiteMoves = true;
 		blackMoves = true;
 	}
@@ -154,7 +163,7 @@ public class Board {
 			breathMask &= ((~0x00000800) & BOARDMASK);
 		}
 		if( (( 1 << position ) & topSideMask) != 0 ) {
-			breathMask &= ((~00000002) & BOARDMASK);
+			breathMask &= ((~0x00000002) & BOARDMASK);
 		}
 		
 		if( position < 6) 

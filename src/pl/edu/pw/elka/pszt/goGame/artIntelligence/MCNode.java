@@ -13,6 +13,7 @@ public class MCNode {
 	public MCNode parent;
 	
 	public int number;
+	public int moveNum;
 	
 	public MCNode(MCNode parent, Board board) {
 		wonGames = 0;

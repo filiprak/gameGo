@@ -1,5 +1,6 @@
 package pl.edu.pw.elka.pszt.goGame.artIntelligence;
 
+import java.lang.ProcessBuilder.Redirect;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -14,9 +15,12 @@ public class MCTree {
 
 	private MCNode root;
 	private String string, offset;
-
+	public static int num = 0;
+	public static int movesMaskSize = 24;
+	
 	public MCTree(Board rootBoard) {
 		root = new MCNode(null, rootBoard);
+		num = 0;
 	}
 
 	public MCNode getRoot() {
@@ -28,8 +32,7 @@ public class MCTree {
 	 * @return
 	 */
 	public String getInfo(int detailLevel) {
-		return null;
-
+		return this.toShortString();
 	}
 
 	/**
@@ -48,7 +51,7 @@ public class MCTree {
 			while (!node.children.isEmpty()) {
 				float maxRatio = -1;
 				for (MCNode child : node.children) {
-					float rat = (float) child.wonGames / (child.wonGames + child.lostGames);
+					float rat = calculateRatio(node, child);
 					if (rat > maxRatio) {
 						node = child;
 						maxRatio = rat;
@@ -60,7 +63,7 @@ public class MCTree {
 			ArrayList<Integer> moves = new ArrayList<Integer>();
 			int validMoves = node.getBoard().getValidMoves();
 			int numValidMoves = 0;
-			for (int j = 0; j < 26; ++j) {
+			for (int j = 0; j < movesMaskSize; ++j) {
 				if ((validMoves & (1 << j)) == 0) // skip invalid moves
 					continue;
 				numValidMoves++;
@@ -72,9 +75,11 @@ public class MCTree {
 			Random rand = new Random();
 			Board childBoard = new Board(node.getBoard());
 			int randomMoveId = rand.nextInt(numValidMoves);
+			//System.out.print(moves.get(randomMoveId) + "\n");
+			
 			Model.makeMove(childBoard, moves.get(randomMoveId));
 			MCNode newNode = new MCNode(node, node.getBoard());
-			newNode.number = rand.nextInt(1000);
+			newNode.number = ++num;
 			node.addChild(newNode);
 
 			Board simulBoard = new Board(newNode.getBoard());
@@ -85,8 +90,8 @@ public class MCTree {
 
 			// propagate upwards
 			while (current != null) {
-				current.wonGames += result;
-				current.lostGames += 1 - result;
+				current.wonGames += 1 - result;
+				current.lostGames += result;
 				current = current.parent;
 			}
 		}
@@ -102,37 +107,28 @@ public class MCTree {
 			}
 		}
 		
-		System.out.println(node.getBoard().toString());
-		System.out.println(binary(root.getBoard().getAllStones() ^ node.getBoard().getAllStones()));
-		
-		return root.getBoard().getAllStones() ^ node.getBoard().getAllStones();
-	}
-
-	public static int getRandom(int[] array) {
-		int rnd = new Random().nextInt(array.length);
-		return array[rnd];
+		return node.moveNum;
 	}
 	
 	private int addAllValidMoves(MCNode parent) {
-		Model.setValidMoves(parent.getBoard());
 		int validMoves = parent.getBoard().getValidMoves();
 		//System.out.println(binary(validMoves));
 		int numValidMoves = 0;
 
 		// go up through tree
-		for (int j = 0; j < 26; ++j) {
+		for (int j = 0; j < movesMaskSize; ++j) {
 
 			if ((validMoves & (1 << j)) == 0) // skip invalid moves
 				continue;
 			numValidMoves++;
 			// add new node
-			Random rand = new Random();
 			Board childBoard = new Board(parent.getBoard());
 			Model.makeMove(childBoard, j);
 			// System.out.println(childBoard.toString());
 
 			MCNode newNode = new MCNode(parent, childBoard);
-			newNode.number = rand.nextInt(1000);
+			newNode.number = ++num;
+			newNode.moveNum = j;
 			parent.addChild(newNode);
 
 			Board simulBoard = new Board(newNode.getBoard());
@@ -143,22 +139,30 @@ public class MCTree {
 
 			// propagate upwards
 			while (current != null) {
-				current.wonGames += result;
-				current.lostGames += 1 - result;
+				current.wonGames += 1 - result;
+				current.lostGames += result;
 				current = current.parent;
 			}
 		}
 		return numValidMoves;
 	}
 
-	private String binary(int number) {
+	private float calculateRatio(MCNode parent, MCNode child) {
+		float ratio = (float) child.wonGames / (child.wonGames + child.lostGames);
+		ratio += 1.418 * Math.sqrt(Math.log(parent.wonGames + parent.lostGames) / 
+				(child.wonGames + child.lostGames));
+		return ratio;
+	}
+	
+	public static String binary(int number) {
 		String string = new String("");
 		for(int i = 0; i < 32; ++i) {
+			if (i%5 == 0) string +="\n";
 			if (i == 25) string += " ";
 			if ((number & (1 << i)) == 0)
-				string += 0;
+				string += "0 ";
 			else
-				string += 1;
+				string += "1 ";
 		}
 		return string;
 	}
@@ -172,7 +176,7 @@ public class MCTree {
 			ArrayList<Integer> moves = new ArrayList<Integer>();
 			int validMoves = board.getValidMoves();
 			int numValidMoves = 0;
-			for (int j = 0; j < 26; ++j) {
+			for (int j = 0; j < movesMaskSize; ++j) {
 				if ((validMoves & (1 << j)) == 0) // skip invalid moves
 					continue;
 				numValidMoves++;
@@ -201,7 +205,7 @@ public class MCTree {
 		string += root.number + "#(" + root.wonGames + "/" +
 				(root.wonGames + root.lostGames) + ")\n";
 		for (MCNode child : root.children) {
-			string += "| " + child.number + "#(" + child.wonGames + "/" +
+			string += "| " + child.moveNum + "#(" + child.wonGames + "/" +
 					(child.wonGames + child.lostGames) + ")\n";
 		}
 		

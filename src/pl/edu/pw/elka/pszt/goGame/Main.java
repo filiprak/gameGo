@@ -2,6 +2,7 @@ package pl.edu.pw.elka.pszt.goGame;
 
 import java.util.Scanner;
 
+import pl.edu.pw.elka.pszt.goGame.artIntelligence.ArtIntelligence;
 import pl.edu.pw.elka.pszt.goGame.artIntelligence.MCTree;
 import pl.edu.pw.elka.pszt.goGame.model.Board;
 import pl.edu.pw.elka.pszt.goGame.model.Model;
@@ -9,17 +10,9 @@ import pl.edu.pw.elka.pszt.goGame.model.Model;
 public class Main {
 
 	public static void main(String[] args) {
-		Model model = new Model();
+		Model model = new Model(Board.BLACKSGN);
+		ArtIntelligence engine =  new ArtIntelligence();
 		Scanner reader = new Scanner(System.in);
-		
-		/*Board b = new Board();
-		for (int i = 0; i < 25; i = i + 7) {
-			Model.makeMove(b, i);
-		}
-		System.out.println(b.toString());
-		MCTree tree = new MCTree(b);
-		tree.makeMove();
-		System.out.println(tree.toShortString());*/
 
 		while(!model.isEnded()) {
 			System.out.println(model.getBoard());
@@ -27,7 +20,11 @@ public class Main {
 			int n = reader.nextInt(); // Scans the next token of the input as an int.
 			if( ((1 << n) & model.getValidMoves()) != 0) {
 				System.out.println();
-				model.makeMove(n);
+				if (model.getBoardObject().isBlackMoves())
+					model.makeMove(n);
+				System.out.println(MCTree.binary(model.getValidMoves()));
+				if (model.getBoardObject().isWhiteMoves())
+					model.makeMove(engine.makeMove(model.getBoardObject()));
 			}
 			else {
 				System.out.println("tried to make invalid move!");
