@@ -187,5 +187,11 @@ public class Model {
 		return board.getValidMoves();
 	}
 	
+	public int getWhiteStones() {
+		return board.getWhiteStones();
+	}
 	
+	public int getBlackStones() {
+		return board.getBlackStones();
+	}
 }

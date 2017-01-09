@@ -3,6 +3,8 @@ package pl.edu.pw.elka.pszt.goGame.view;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -11,6 +13,9 @@ import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+
+import pl.edu.pw.elka.pszt.goGame.controller.Controller;
 
 public class View {
 	
@@ -34,25 +39,122 @@ public class View {
 		p2.add(b);
 		frame.add(p, BorderLayout.EAST);
 		p.add(b);
-	    final BufferedImage image = ImageIO.read(new File("/home/gepard/Board1000.png"));
-
-	    JPanel pane = new JPanel() {
-	        @Override
-            protected void paintComponent(Graphics g) {
-	        	super.paintComponent(g);
-	            g.drawImage(image, 0, 0, null);
-	        }
-	    };
+	    
+		controller = new Controller();
+	    
+	    pane = new GamePanel(controller);
 
 
 	    frame.add(pane, BorderLayout.CENTER);
 	    
 		
 		//4. Size the frame.
-		frame.setSize(new Dimension(1100, 1000));
+		frame.setSize(new Dimension(1000, 800));
 		//frame.pack();
 
 		//5. Show it.
 		frame.setVisible(true);
 	}
+	
+	public void updatePanel() {
+		pane.updatePanel();
+	}
+	
+	GamePanel pane;
+	
+	Controller controller;
+}
+
+class GamePanel extends JPanel {
+	public GamePanel(Controller c) {
+		super();
+		controller = c;
+		playersTurn = true;
+		addMouseListener(new MouseHandler());
+	}
+	
+	public void updatePanel() {
+		this.repaint();
+	}
+	
+	 @Override
+     protected void paintComponent(Graphics g) {
+     	super.paintComponent(g);
+     	BufferedImage whiteStone;
+     	BufferedImage blackStone;
+     	BufferedImage board;
+		try {
+			whiteStone = ImageIO.read(new File("/home/gepard/PSZT/whiteStone.png"));
+			blackStone = ImageIO.read(new File("/home/gepard/PSZT/blackStone.png"));
+	     	board = ImageIO.read(new File("/home/gepard/PSZT/board.png"));
+	     	
+			g.drawImage(board, 0, 0, null);
+	     	int stones = controller.getWhiteStones();
+	     	for(int i = 0; i < 25; ++i) {
+	     		if( ((stones >> i) & 1) == 1 ) {
+	     			int x = i%5;
+	     			int y = (i - x)/5;
+	     			g.drawImage(whiteStone, STARTING_POINT + x * STONES_DISTANCE, STARTING_POINT + y * STONES_DISTANCE, null);
+	     		}
+	     	}
+	     	stones = controller.getBlackStones();
+	     	for(int i = 0; i < 25; ++i) {
+	     		if( ((stones >> i) & 1) == 1 ) {
+	     			int x = i%5;
+	     			int y = (i - x)/5;
+	     			g.drawImage(blackStone, STARTING_POINT + x * STONES_DISTANCE, STARTING_POINT + y * STONES_DISTANCE, null);
+	     		}
+	     	}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+     	
+     }
+	 
+	 private void makeMove(double x, double y) {
+		 int column = getPos(x);
+		 int row = getPos(y);
+		 
+		 if( column == -1 || row == -1) return;
+		 
+		 controller.makeMove(column + row * 5);
+		 this.repaint();
+	 }
+	 
+	 private int getPos(double x) {
+		 if( x < STARTING_POINT) return -1;
+		 int x_coordinate = (int)x;
+		 x_coordinate -= STARTING_POINT;
+		 
+		 System.out.println(x_coordinate);
+		 if( x_coordinate % STONES_DISTANCE > 80) return -1;
+		 int pos = (int)(x_coordinate / STONES_DISTANCE);
+		 return pos > 4 ? -1 : pos;
+	 }
+	 
+	 
+	 
+	 private Controller controller;
+	 private boolean playersTurn;
+
+	 final int STARTING_POINT = 40;
+	 final int STONES_DISTANCE = 160;
+  	
+
+	/**
+	 * class managing mouse actions
+	 * @author Michał Glinka
+	 *
+	 */
+	private class MouseHandler extends MouseAdapter
+	{
+		public void mousePressed(MouseEvent event)
+		{
+			double x = event.getPoint().getX();
+			double y = event.getPoint().getY();
+			
+			if( playersTurn ) makeMove(x, y);
+		}
+	}	
 }
