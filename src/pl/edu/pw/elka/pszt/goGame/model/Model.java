@@ -204,4 +204,5 @@ public class Model {
 	public int getBlackStones() {
 		return board.getBlackStones();
 	}
+	public int getWhite
 }

@@ -1,6 +1,7 @@
 package pl.edu.pw.elka.pszt.goGame.view;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 
@@ -39,6 +41,10 @@ public class View {
 		p2.add(b);
 		frame.add(p, BorderLayout.EAST);
 		p.add(b);
+		
+		MenuPanel mP = new MenuPanel();
+		frame.add(mP, BorderLayout.WEST	);
+
 	    
 		controller = new Controller();
 	    
@@ -84,9 +90,9 @@ class GamePanel extends JPanel {
      	BufferedImage blackStone;
      	BufferedImage board;
 		try {
-			whiteStone = ImageIO.read(new File("/home/gepard/PSZT/whiteStone.png"));
-			blackStone = ImageIO.read(new File("/home/gepard/PSZT/blackStone.png"));
-	     	board = ImageIO.read(new File("/home/gepard/PSZT/board.png"));
+			whiteStone = ImageIO.read(new File("/home/modzel101/Pictures/WhiteStone.png"));
+			blackStone = ImageIO.read(new File("/home/modzel101/Pictures/BlackStone.png"));
+	     	board = ImageIO.read(new File("/home/modzel101/Pictures/Board800V2.png"));
 	     	
 			g.drawImage(board, 0, 0, null);
 	     	int stones = controller.getWhiteStones();
@@ -157,4 +163,16 @@ class GamePanel extends JPanel {
 			if( playersTurn ) makeMove(x, y);
 		}
 	}	
+}	
+class MenuPanel extends JPanel{
+	public MenuPanel() {
+		new JPanel (new BorderLayout());
+		this.setSize(new Dimension(200,800));
+		this.setBackground(Color.RED);
+		JButton nowaGra = new JButton("Nowa Gra");
+		this.add(nowaGra);
+		JLabel punktyBialego = new JLabel("Punkty Białego: " + );
+	}
+	
 }
+

@@ -40,6 +40,10 @@ public class Controller {
 		}
 	}
 	
+	public int getWhitePoints() {
+		return model.
+	}
+	
 	Model model;
 	View view;
 	
