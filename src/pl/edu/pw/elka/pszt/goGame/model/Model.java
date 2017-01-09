@@ -5,6 +5,7 @@ public class Model {
 	
 	Board board; //board of a game
 	public static final int WHITEPLAYER = 0, BLACKPLAYER = 1; //int's for players
+	private char currentTurn;
 	
 	public Model(char firstPlayer) {
 		board = new Board(firstPlayer);
@@ -124,7 +125,7 @@ public class Model {
 	 * @param board
 	 * @return
 	 */
-	public static boolean makeMove(Board currentBoard, int position) {
+	public static char makeMove(Board currentBoard, int position) {
 		if( position >= Board.getCrosses() ) {
 			currentBoard.resignCurrentPlayer();
 		}
@@ -133,9 +134,9 @@ public class Model {
 			int deletedStones = getDeletedStones( currentBoard );
 			currentBoard.deleteStones( deletedStones );
 		}
-		currentBoard.switchTurn();
+		char currentPlayer = currentBoard.switchTurn();
 		setValidMoves(currentBoard);
-		return true;
+		return currentPlayer;
 	}
 	
 	/**
@@ -143,7 +144,7 @@ public class Model {
 	 * @param position
 	 * @return 
 	 */
-	public boolean makeMove(int position) {
+	public char makeMove(int position) {
 		System.out.println("move: " + position + " ");
 		return makeMove( board, position );
 	}
@@ -182,6 +183,10 @@ public class Model {
 
 	public String getBoard() {
 		return board.toString();
+	}
+	
+	public Board getGameBoard() {
+		return board;
 	}
 	
 	public Board getBoardObject() {
