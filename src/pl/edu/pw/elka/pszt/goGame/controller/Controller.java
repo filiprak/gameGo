@@ -1,5 +1,6 @@
 package pl.edu.pw.elka.pszt.goGame.controller;
 
+import pl.edu.pw.elka.pszt.goGame.model.Board;
 import pl.edu.pw.elka.pszt.goGame.model.Model;
 import pl.edu.pw.elka.pszt.goGame.view.View;
 
@@ -8,7 +9,7 @@ public class Controller {
 	//private final View view;
 
 	public Controller() {
-		model = new Model();
+		model = new Model(Board.BLACKSGN);
 		model.makeMove(1);
 		model.makeMove(3);
 		model.makeMove(6);

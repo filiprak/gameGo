@@ -16,11 +16,13 @@ public class MCTree {
 	private MCNode root;
 	private String string, offset;
 	public static int num = 0;
-	public static int movesMaskSize = 24;
+	public static int movesMaskSize = 26;
+	private char stonesColor;
 	
-	public MCTree(Board rootBoard) {
+	public MCTree(Board rootBoard, char stonesColor) {
 		root = new MCNode(null, rootBoard);
 		num = 0;
+		this.stonesColor = stonesColor;
 	}
 
 	public MCNode getRoot() {
@@ -47,17 +49,8 @@ public class MCTree {
 
 		// standard monte carlo tree build
 		for (int i = 0; i < 10000; ++i) {
-			MCNode node = root; // go up through tree
-			while (!node.children.isEmpty()) {
-				float maxRatio = -1;
-				for (MCNode child : node.children) {
-					float rat = calculateRatio(node, child);
-					if (rat > maxRatio) {
-						node = child;
-						maxRatio = rat;
-					}
-				}
-			}
+			// choose child with maximum ratio
+			MCNode node = maxRatioChild();
 
 			// add new node
 			ArrayList<Integer> moves = new ArrayList<Integer>();
@@ -78,7 +71,7 @@ public class MCTree {
 			//System.out.print(moves.get(randomMoveId) + "\n");
 			
 			Model.makeMove(childBoard, moves.get(randomMoveId));
-			MCNode newNode = new MCNode(node, node.getBoard());
+			MCNode newNode = new MCNode(node, childBoard);
 			newNode.number = ++num;
 			node.addChild(newNode);
 
@@ -90,8 +83,13 @@ public class MCTree {
 
 			// propagate upwards
 			while (current != null) {
-				current.wonGames += 1 - result;
-				current.lostGames += result;
+				if (stonesColor == Board.WHITESGN) {
+					current.wonGames += 1 - result;
+					current.lostGames += result;
+				} else {
+					current.wonGames += result;
+					current.lostGames += 1 - result;
+				}
 				current = current.parent;
 			}
 		}
@@ -139,14 +137,36 @@ public class MCTree {
 
 			// propagate upwards
 			while (current != null) {
-				current.wonGames += 1 - result;
-				current.lostGames += result;
+				if (stonesColor == Board.WHITESGN) {
+					current.wonGames += 1 - result;
+					current.lostGames += result;
+				} else {
+					current.wonGames += result;
+					current.lostGames += 1 - result;
+				}
 				current = current.parent;
 			}
 		}
 		return numValidMoves;
 	}
 
+	private MCNode maxRatioChild() {
+		MCNode node = root; // go up through tree
+		MCNode bestChild = root; // go up through tree
+		while (!node.children.isEmpty()) {
+			float maxRatio = -1;
+			for (MCNode child : node.children) {
+				float rat = calculateRatio(node, child);
+				if (rat > maxRatio) {
+					bestChild = child;
+					maxRatio = rat;
+				}
+			}
+			node = bestChild;
+		}
+		return node;
+	}
+	
 	private float calculateRatio(MCNode parent, MCNode child) {
 		float ratio = (float) child.wonGames / (child.wonGames + child.lostGames);
 		ratio += 1.418 * Math.sqrt(Math.log(parent.wonGames + parent.lostGames) / 
@@ -185,6 +205,8 @@ public class MCTree {
 			if (numValidMoves == 0)
 				break;
 			int randomMoveId = new Random().nextInt(numValidMoves);
+			/*if (moves.get(randomMoveId) == 25)
+				return stonesColor == Board.BLACKSGN ? */
 			Model.makeMove(board, moves.get(randomMoveId));
 		}
 		
@@ -214,7 +236,7 @@ public class MCTree {
 
 	private void walkTree(MCNode node) {
 		String nodeStr = new String(
-				node.number + "#(" + node.wonGames + "/" + (node.wonGames + node.lostGames) + ")\n");
+				node.moveNum + "#(" + node.wonGames + "/" + (node.wonGames + node.lostGames) + ")\n");
 
 		if (node.children.isEmpty()) {
 			string = offset + nodeStr + string;

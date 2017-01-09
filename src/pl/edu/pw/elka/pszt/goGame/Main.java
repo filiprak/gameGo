@@ -11,7 +11,7 @@ public class Main {
 
 	public static void main(String[] args) {
 		Model model = new Model(Board.BLACKSGN);
-		ArtIntelligence engine =  new ArtIntelligence();
+		ArtIntelligence engine =  new ArtIntelligence(Board.WHITESGN);
 		Scanner reader = new Scanner(System.in);
 
 		while(!model.isEnded()) {
@@ -22,6 +22,7 @@ public class Main {
 				System.out.println();
 				if (model.getBoardObject().isBlackMoves())
 					model.makeMove(n);
+				System.out.println(model.getBoard());
 				System.out.println(MCTree.binary(model.getValidMoves()));
 				if (model.getBoardObject().isWhiteMoves())
 					model.makeMove(engine.makeMove(model.getBoardObject()));
