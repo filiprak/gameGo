@@ -50,7 +50,7 @@ public class Model {
 		return getWinner( board );
 	}
 	
-	public int countOnes(int mask)
+	public static int countOnes(int mask)
 	{
 		int nr = 0;
 		for (int i = 0; i<25; ++i)
@@ -61,7 +61,7 @@ public class Model {
 		return nr;
 	}
 	
-	public void countPoints (Board currentBoard)
+	public static void countPoints (Board currentBoard)
 	{
 		int cross;
 		for (int y = 0; y < Board.BOARDSIZE; ++y) {

@@ -48,7 +48,7 @@ public class MCTree {
 		}
 
 		// standard monte carlo tree build
-		for (int i = 0; i < 10000; ++i) {
+		for (int i = 0; i < 30000; ++i) {
 			// choose child with maximum ratio
 			MCNode node = maxRatioChild();
 
@@ -210,6 +210,7 @@ public class MCTree {
 			Model.makeMove(board, moves.get(randomMoveId));
 		}
 		
+		Model.countPoints(board);
 		return Model.getWinner(board);
 	}
 
