@@ -105,9 +105,9 @@ class GamePanel extends JPanel {
      	BufferedImage blackStone;
      	BufferedImage board;
 		try {
-			whiteStone = ImageIO.read(new File("/home/modzel101/Img/whiteStone80.png"));
-			blackStone = ImageIO.read(new File("/home/modzel101/Img/blackStone80.png"));
-	     	board = ImageIO.read(new File("/home/modzel101/Img/Board800V2.png"));
+			whiteStone = ImageIO.read(new File("whiteStone.png"));
+			blackStone = ImageIO.read(new File("blackStone.png"));
+	     	board = ImageIO.read(new File("board.png"));
 	     	
 			g.drawImage(board, 0, 0, null);
 	     	int stones = controller.getWhiteStones();
