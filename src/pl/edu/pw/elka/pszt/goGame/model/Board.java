@@ -299,4 +299,5 @@ public class Board {
 	public void setBlackNonstones(int blackNonstones) {
 		this.blackNonstones = blackNonstones;
 	}
+
 }
