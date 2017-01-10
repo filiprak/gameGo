@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -79,11 +80,11 @@ public class View {
 	public void updatePanel() {
 		pane.updatePanel();
 	}
-	public JFrame getFrame() {
-		return frame;
-	}
 	public void showResults() {
 		mP.showResults();
+	}
+	public JFrame getFrame() {
+		return this.frame;
 	}
 	
 	GamePanel pane;
@@ -185,9 +186,11 @@ class GamePanel extends JPanel {
 	}	
 }	
 class MenuPanel extends JPanel{
-	public JLabel txt;
-	public JButton newGame;
-	public JButton pas;
+	 JLabel txt;
+	 JButton newGame;
+	 JButton pas;
+	 JButton exit;
+	
 	Controller c;
 	View view;
 
@@ -210,6 +213,10 @@ class MenuPanel extends JPanel{
 		this.pas.setPreferredSize(new Dimension(200,100));
 		this.pas.addActionListener(new mPActionListener());
 		this.add(pas);
+		this.exit = new JButton("Wyjście");
+		this.exit.setPreferredSize(new Dimension(200,100));
+		this.exit.addActionListener(new mPActionListener());
+		this.add(exit);
 	}
 	
 	public void showResults() {
@@ -253,9 +260,15 @@ class MenuPanel extends JPanel{
 		{
 			if (e.getSource() == newGame)
 				c.newGame();
-			if(e.getSource() == pas)
+			else if(e.getSource() == pas) {
 				c.makeMove(25);
 				getUpdatePanel();
+			}
+			else if(e.getSource() == exit) {
+				c.exitGame();	
+			}
+				
+			
 		}	
 	}
 	

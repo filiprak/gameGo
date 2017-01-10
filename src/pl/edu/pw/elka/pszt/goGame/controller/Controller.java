@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 
 
 import pl.edu.pw.elka.pszt.goGame.model.Model;
@@ -68,7 +69,9 @@ public class Controller {
 	public void newGame() {
 		model = new Model(Board.BLACKSGN);
 		view.updatePanel();
-		
+	}
+	public void exitGame() {
+		view.getFrame().dispatchEvent(new WindowEvent(view.getFrame(), WindowEvent.WINDOW_CLOSING));
 	}
 	
 	Model model;
