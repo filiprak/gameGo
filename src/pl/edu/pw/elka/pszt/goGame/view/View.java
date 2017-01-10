@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -50,11 +52,11 @@ public class View {
 		//mP.showResults();
 		
 	    
-		controller = new Controller();
+		controller = new Controller(this);
 	    
 	    pane = new GamePanel(controller);
 		
-		mP = new MenuPanel(controller);
+		mP = new MenuPanel(controller, this);
 		frame.add(mP, BorderLayout.EAST);
 
 
@@ -79,6 +81,9 @@ public class View {
 	}
 	public JFrame getFrame() {
 		return frame;
+	}
+	public void showResults() {
+		mP.showResults();
 	}
 	
 	GamePanel pane;
@@ -184,11 +189,13 @@ class MenuPanel extends JPanel{
 	public JButton newGame;
 	public JButton pas;
 	Controller c;
+	View view;
 
 	
 
-	public MenuPanel(Controller cc) {
-		c=cc;
+	public MenuPanel(Controller cc, View v) {
+		c = cc;
+		view = v;
 		new JPanel ();
 		this.setPreferredSize(new Dimension(205,800));
 		this.setBackground(Color.YELLOW);
@@ -197,11 +204,11 @@ class MenuPanel extends JPanel{
 		this.add(txt);
 		this.newGame = new JButton("Nowa Gra");
 		this.newGame.setPreferredSize(new Dimension(200,100));
-		this.newGame.addMouseListener(new MouseHandlerNewGame());
+		this.newGame.addActionListener(new mPActionListener());
 		this.add(newGame);
 		this.pas = new JButton("Pas");
 		this.pas.setPreferredSize(new Dimension(200,100));
-		this.pas.addMouseListener(new MouseHandlerPas());
+		this.pas.addActionListener(new mPActionListener());
 		this.add(pas);
 	}
 	
@@ -216,7 +223,7 @@ class MenuPanel extends JPanel{
 		int wys = rozmiarEkranu.height;
 		int szer = rozmiarEkranu.width;
 		frame.setLocation(szer/3, wys/3);
-		
+		c.getCountPoints();
 		if(c.getBlackPoints() < c.getWhitePoints()) {
 			JLabel wW = new JLabel("<html>Wygrał Biały! <br> Punkty Białego:<html>" + Integer.toString(c.getWhitePoints()) + "<html><br> Punkty Czarnego: <html>" + Integer.toString(c.getBlackPoints()));
 			frame.add(wW);
@@ -236,22 +243,23 @@ class MenuPanel extends JPanel{
 		frame.setVisible(true);
 		
 	}
+	public void getUpdatePanel() {
+		view.updatePanel();
+	} 
 	
-	private class MouseHandlerNewGame extends MouseAdapter
+	private class mPActionListener implements ActionListener
 	{
-		public void mousePressed(MouseEvent event)
+		public void actionPerformed(ActionEvent e)
 		{
-			c.newGame();
-		}
+			if (e.getSource() == newGame)
+				c.newGame();
+			if(e.getSource() == pas)
+				c.makeMove(25);
+				getUpdatePanel();
+		}	
 	}
 	
-	private class MouseHandlerPas extends MouseAdapter
-	{
-		public void mousePressed(MouseEvent event)
-		{
-			c.makeMove(25);
-		}
-	}
+
 	
 }
 

@@ -20,11 +20,11 @@ public class Controller {
 
 	char currentTurn;
 	
-	public Controller() {
+	public Controller(View vview) {
 
 		model = new Model(Board.BLACKSGN);
 		currentTurn = Board.BLACKSGN;
-
+		view = vview;
 		//model = new Model();
 
 
@@ -37,7 +37,9 @@ public class Controller {
 	public int getBlackStones() {
 		return model.getBlackStones();
 	}
-	
+	public void getCountPoints() {
+		model.countPoints();
+	}
 	public void makeMove(int position) {
 		ArtIntelligence AI = new ArtIntelligence(Board.WHITESGN);
 		int validMoves = model.getValidMoves();
@@ -45,6 +47,10 @@ public class Controller {
 			currentTurn = model.makeMove(position);
 			while( currentTurn == Board.WHITESGN ) {
 				currentTurn = model.makeMove(AI.makeMove(model.getGameBoard()));
+				if(model.isEnded()) {
+					view.showResults();
+					return;
+				}
 			}
 		}
 		else {
