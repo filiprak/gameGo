@@ -40,10 +40,8 @@ public class Model {
 	public static int getWinner( Board currentBoard ) {
 		if ((currentBoard.getBlackPoints()) < (currentBoard.getWhitePoints()))
 			return WHITEPLAYER;
-		else if((currentBoard.getBlackPoints()) > (currentBoard.getWhitePoints()))
+		else // if((currentBoard.getBlackPoints()) > (currentBoard.getWhitePoints()))
 			return BLACKPLAYER;
-
-		return 0;
 	}
 	
 	/**

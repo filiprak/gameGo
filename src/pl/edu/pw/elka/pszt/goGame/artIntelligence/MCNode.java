@@ -16,6 +16,7 @@ public class MCNode {
 	public int moveNum;
 	
 	private boolean ended;
+	private boolean chooseChildren;
 	
 	public MCNode(MCNode parent, Board board) {
 		wonGames = 0;
@@ -24,6 +25,7 @@ public class MCNode {
 		this.parent = parent;
 		this.board = board;
 		this.ended = false;
+		this.chooseChildren = false;
 	}
 
 	public void addChild(MCNode child) {
@@ -34,12 +36,23 @@ public class MCNode {
 		return board;
 	}
 	
+	public void deleteSimulationMove(int position) {
+		board.deleteSimulationMove(position);
+		if( (board.getSimulationMoves() & Board.BOARDMASK) == 0) {
+			chooseChildren = true;	//there are no new children to be made, so we have to choose one!
+		}
+	}
+	
 	public void end() {
 		ended = true;
 	}
 	
 	public boolean isEnded() {
 		return ended;
+	}
+	
+	public boolean choosingChildren() {
+		return chooseChildren;
 	}
 
 	public void setBoard(Board board) {

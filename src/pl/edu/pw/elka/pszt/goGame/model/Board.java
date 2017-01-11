@@ -6,7 +6,7 @@ import java.util.List;
 public class Board {
 	public static final int BOARDSIZE = 5;
 	public static final char WHITESGN = 'W', BLACKSGN = 'B', EMPTYSGN = '+';
-	public static final int BOARDMASK = 0x01FFFFFF;
+	public static final int BOARDMASK = 0x03FFFFFF;
 	public static final int DELETED_STONE_POINT = 1;
 	
 	private int whiteStones, blackStones, whiteNonstones, blackNonstones;
@@ -22,7 +22,7 @@ public class Board {
 	}
 
 	private char currentTurn;
-	private int validMoves;
+	private int validMoves, validSimulationMoves;
 	
 	public Board(char firstPlayer) {
 		whiteStones = 0x00000000;
@@ -43,6 +43,7 @@ public class Board {
 		whiteMoves = b.whiteMoves;
 		blackMoves = b.blackMoves;
 		validMoves = b.validMoves;
+		validSimulationMoves = b.validSimulationMoves;
 }
 	
 
@@ -221,7 +222,17 @@ public class Board {
 	
 	public void setValidMoves( int vM ) {
 		validMoves = vM;
-		validMoves |= (1 << getCrosses());
+		if( !isEnded() )
+			validMoves |= (1 << getCrosses());
+		validSimulationMoves = validMoves;
+	}
+	
+	public int getSimulationMoves() {
+		return validSimulationMoves;
+	}
+	
+	public void deleteSimulationMove(int position) {
+		validSimulationMoves = ( validSimulationMoves &  ~(1 << position) );
 	}
 	
 	public void resignCurrentPlayer() {
@@ -231,6 +242,10 @@ public class Board {
 	
 	public boolean isEnded() {
 		return (!whiteMoves && !blackMoves); //both players pass'ed
+	}
+	
+	public boolean resignedPlayer() {
+		return !whiteMoves || !blackMoves;
 	}
 	
 	//@Override

@@ -13,6 +13,8 @@ import pl.edu.pw.elka.pszt.goGame.model.Model;
 
 public class MCTree {
 
+	private final int CHILDREN_LIMIT = 2000;
+	
 	private MCNode root;
 	private String string, offset;
 	public static int num = 0;
@@ -42,21 +44,38 @@ public class MCTree {
 	 */
 	public int makeMove() {
 		// init tree with 2 levels of all available moves
-		addAllValidMoves(root);
+		/*addAllValidMoves(root);
 		for (MCNode child : root.children) {
 			addAllValidMoves(child);
+		}*/
+		
+		{
+		Board simulBoard = new Board(root.getBoard());
+		// simulate
+		int result = simulate(simulBoard);
+		
+		if (stonesColor == Board.WHITESGN) {
+			root.wonGames += 1 - result;
+			root.lostGames += result;
+		} else {
+			root.wonGames += result;
+			root.lostGames += 1 - result;
 		}
+		}
+		
+		int breakPoint = 1;
+		breakPoint = breakPoint + breakPoint;
 
 		// standard monte carlo tree build
 		for (int i = 0; i < 30000; ++i) {
 			// choose child with maximum ratio
 			MCNode node = maxRatioChild();
-			if( node == root ) {
+			if( node == null ) {
 				break;
 			}
 			// add new node
 			ArrayList<Integer> moves = new ArrayList<Integer>();
-			int validMoves = node.getBoard().getValidMoves();
+			int validMoves = node.getBoard().getSimulationMoves();
 			int numValidMoves = 0;
 			for (int j = 0; j < movesMaskSize; ++j) {
 				if ((validMoves & (1 << j)) == 0) // skip invalid moves
@@ -64,8 +83,6 @@ public class MCTree {
 				numValidMoves++;
 				moves.add(j);
 			}
-			if (numValidMoves == 0)
-				continue;
 			
 			Random rand = new Random();
 			Board childBoard = new Board(node.getBoard());
@@ -75,9 +92,11 @@ public class MCTree {
 			Model.makeMove(childBoard, moves.get(randomMoveId));
 			MCNode newNode = new MCNode(node, childBoard);
 			newNode.number = ++num;
+			newNode.moveNum = moves.get(randomMoveId);
 			node.addChild(newNode);
 			
-			if( newNode.getBoard().isEnded() ) {
+			node.deleteSimulationMove(moves.get(randomMoveId));
+			if( newNode.getBoard().isEnded() || newNode.getBoard().resignedPlayer() ) {
 				newNode.end();
 			}
 
@@ -90,21 +109,21 @@ public class MCTree {
 			// propagate upwards
 			while (current != null) {
 				if (stonesColor == Board.WHITESGN) {
-					current.wonGames += 1 - result;
+					current.wonGames += (1 - result);
 					current.lostGames += result;
 				} else {
 					current.wonGames += result;
-					current.lostGames += 1 - result;
+					current.lostGames += (1 - result);
 				}
 				current = current.parent;
 			}
 		}
 
 		// return best turn
-		int maxSimuls = -1;
+		float maxSimuls = -1;
 		MCNode node = root;
 		for (MCNode child : root.children) {
-			int simuls = (child.wonGames + child.lostGames);
+			float simuls = (float)( (float)child.wonGames / (float)(child.wonGames + child.lostGames));
 			if (simuls > maxSimuls) {
 				node = child;
 				maxSimuls = simuls;
@@ -138,7 +157,7 @@ public class MCTree {
 			Board simulBoard = new Board(newNode.getBoard());
 			// simulate
 			int result = simulate(simulBoard);
-
+			
 			MCNode current = newNode;
 
 			// propagate upwards
@@ -158,11 +177,21 @@ public class MCTree {
 
 	private MCNode maxRatioChild() {
 		MCNode node = root; // go up through tree
-		MCNode bestChild = root; // go up through tree
 		while (!node.children.isEmpty()) {
-			float maxRatio = -1;
+			MCNode bestChild = node; // go up through tree
+			float maxRatio;
+			if( node == root ) {
+				maxRatio = node.choosingChildren() ? -1 : 3;
+			} else {
+				maxRatio = node.choosingChildren() ? -1 : calculateRatio(node.parent, node);	//don't choose worse children unless you have to
+			}
+			bestChild = node;
 			for (MCNode child : node.children) {
 				if( child.isEnded() ) {
+					continue;
+				}
+				if( child.wonGames + child.lostGames > CHILDREN_LIMIT  ) {
+					child.end();
 					continue;
 				}
 				float rat = calculateRatio(node, child);
@@ -171,12 +200,18 @@ public class MCTree {
 					maxRatio = rat;
 				}
 			}
-			if( maxRatio == -1 ) {
-				if( node == root ) {	//all children of root ended their games, return root
-					return root;
+			if( bestChild == node ) {
+				//there was no children to choose from so add new child to higher node
+				if( node.choosingChildren() ) {
+					if( node == root ) {	//root has no valid children, nothing to do!
+						return null;
+					}
+					node.end();
+					node = node.parent;
 				}
-				node.end();
-				node = node.parent;
+				else {
+					return node;
+				}
 			}
 			else {
 				node = bestChild;
@@ -189,6 +224,7 @@ public class MCTree {
 		float ratio = (float) child.wonGames / (child.wonGames + child.lostGames);
 		ratio += 1.418 * Math.sqrt(Math.log(parent.wonGames + parent.lostGames) / 
 				(child.wonGames + child.lostGames));
+		//float ratio = (float) child.wonGames / (child.wonGames + child.lostGames);
 		return ratio;
 	}
 	
@@ -210,6 +246,15 @@ public class MCTree {
 	 * @return
 	 */
 	private int simulate(Board board) {
+		if( board.resignedPlayer() ) {
+			ArrayList<Integer> moves = new ArrayList<Integer>();
+			int validMoves = board.getValidMoves();
+			for (int j = 0; j < movesMaskSize; ++j) {
+				if ((validMoves & (1 << j)) == 0) // skip invalid moves
+					continue;
+				Model.makeMove(board, j);
+			}
+		}
 		while (!board.isEnded()) {
 			ArrayList<Integer> moves = new ArrayList<Integer>();
 			int validMoves = board.getValidMoves();
@@ -238,6 +283,7 @@ public class MCTree {
 		offset = new String("");
 
 		walkTree(root);
+		
 		return string;
 	}
 	

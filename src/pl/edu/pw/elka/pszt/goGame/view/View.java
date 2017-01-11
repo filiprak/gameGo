@@ -221,7 +221,7 @@ class MenuPanel extends JPanel{
 	
 	public void showResults() {
 		JFrame frame = new JFrame("FrameDemo");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setSize(new Dimension(500, 400));
 		frame.setLayout(new BorderLayout());
 		
@@ -234,22 +234,18 @@ class MenuPanel extends JPanel{
 		if(c.getBlackPoints() < c.getWhitePoints()) {
 			JLabel wW = new JLabel("<html>Wygrał Biały! <br> Punkty Białego:<html>" + Integer.toString(c.getWhitePoints()) + "<html><br> Punkty Czarnego: <html>" + Integer.toString(c.getBlackPoints()));
 			frame.add(wW);
-
-			
 		}
 		else if(c.getBlackPoints() > c.getWhitePoints()) {
 			JLabel bW = new JLabel("<html>Wygrał Czarny!<br> Punkty Białego:<html>" + Integer.toString(c.getWhitePoints()) + "<html><br> Punkty Czarnego: <html>" + Integer.toString(c.getBlackPoints()));
 			frame.add(bW);
-
 		}
 		else {
 			JLabel dW = new JLabel("<html>Remis! <br> Punkty Białego:<html>" + Integer.toString(c.getWhitePoints()) + "<html><br> Punkty Czarnego: <html>" + Integer.toString(c.getBlackPoints()));
 			frame.add(dW);
-
 		}
 		frame.setVisible(true);
-		
 	}
+	
 	public void getUpdatePanel() {
 		view.updatePanel();
 	} 
@@ -267,12 +263,7 @@ class MenuPanel extends JPanel{
 			else if(e.getSource() == exit) {
 				c.exitGame();	
 			}
-				
-			
 		}	
 	}
-	
-
-	
 }
 
