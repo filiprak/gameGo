@@ -46,6 +46,10 @@ public class Controller {
 		int validMoves = model.getValidMoves();
 		if( ((1 << position) & validMoves) != 0) {
 			currentTurn = model.makeMove(position);
+			if(model.isEnded()) {
+				view.showResults();
+				return;
+			}
 			while( currentTurn == Board.WHITESGN ) {
 				currentTurn = model.makeMove(AI.makeMove(model.getGameBoard()));
 				if(model.isEnded()) {

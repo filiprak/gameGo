@@ -13,7 +13,8 @@ import pl.edu.pw.elka.pszt.goGame.model.Model;
 
 public class MCTree {
 
-	private final int CHILDREN_LIMIT = 2000;
+	private final int CHILDREN_LIMIT = 5000;
+	private final int SIMULATIONS = 50000;
 	
 	private MCNode root;
 	private String string, offset;
@@ -67,7 +68,7 @@ public class MCTree {
 		breakPoint = breakPoint + breakPoint;
 
 		// standard monte carlo tree build
-		for (int i = 0; i < 30000; ++i) {
+		for (int i = 0; i < SIMULATIONS; ++i) {
 			// choose child with maximum ratio
 			MCNode node = maxRatioChild();
 			if( node == null ) {
