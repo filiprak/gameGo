@@ -12,6 +12,7 @@ public class Board {
 	private int whiteStones, blackStones, whiteNonstones, blackNonstones;
 	private int whitePoints, blackPoints;
 	private boolean whiteMoves, blackMoves;
+	private int deleteMoves;
 	
 	public boolean isWhiteMoves() {
 		return whiteMoves;
@@ -44,6 +45,7 @@ public class Board {
 		blackMoves = b.blackMoves;
 		validMoves = b.validMoves;
 		validSimulationMoves = b.validSimulationMoves;
+		deleteMoves = b.deleteMoves;
 }
 	
 
@@ -314,5 +316,14 @@ public class Board {
 	public void setBlackNonstones(int blackNonstones) {
 		this.blackNonstones = blackNonstones;
 	}
+	
+	public void setDeleteMoves(int dM) {
+		deleteMoves = dM;
+	}
+	
+	public int getDeleteMoves() {
+		return deleteMoves & BOARDMASK;
+	}
+	
 
 }

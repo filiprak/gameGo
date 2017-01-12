@@ -13,8 +13,9 @@ import pl.edu.pw.elka.pszt.goGame.model.Model;
 
 public class MCTree {
 
-	private final int CHILDREN_LIMIT = 5000;
-	private final int SIMULATIONS = 50000;
+	private final int CHILDREN_LIMIT = 4782969;
+	private final int CHILDREN_LIMIT_JUMP = 9;
+	private final int SIMULATIONS = 4782969;
 	
 	private MCNode root;
 	private String string, offset;
@@ -23,7 +24,7 @@ public class MCTree {
 	private char stonesColor;
 	
 	public MCTree(Board rootBoard, char stonesColor) {
-		root = new MCNode(null, rootBoard);
+		root = new MCNode(null, rootBoard, CHILDREN_LIMIT/CHILDREN_LIMIT_JUMP);
 		num = 0;
 		this.stonesColor = stonesColor;
 	}
@@ -91,7 +92,7 @@ public class MCTree {
 			//System.out.print(moves.get(randomMoveId) + "\n");
 			
 			Model.makeMove(childBoard, moves.get(randomMoveId));
-			MCNode newNode = new MCNode(node, childBoard);
+			MCNode newNode = new MCNode(node, childBoard, node.CHILDREN_LIMIT/CHILDREN_LIMIT_JUMP);
 			newNode.number = ++num;
 			newNode.moveNum = moves.get(randomMoveId);
 			node.addChild(newNode);
@@ -150,7 +151,7 @@ public class MCTree {
 			Model.makeMove(childBoard, j);
 			// System.out.println(childBoard.toString());
 
-			MCNode newNode = new MCNode(parent, childBoard);
+			MCNode newNode = new MCNode(parent, childBoard, parent.CHILDREN_LIMIT/CHILDREN_LIMIT_JUMP);
 			newNode.number = ++num;
 			newNode.moveNum = j;
 			parent.addChild(newNode);
@@ -191,7 +192,7 @@ public class MCTree {
 				if( child.isEnded() ) {
 					continue;
 				}
-				if( child.wonGames + child.lostGames > CHILDREN_LIMIT  ) {
+				if( child.wonGames + child.lostGames > child.CHILDREN_LIMIT  ) {
 					child.end();
 					continue;
 				}
@@ -257,21 +258,31 @@ public class MCTree {
 			}
 		}
 		while (!board.isEnded()) {
-			ArrayList<Integer> moves = new ArrayList<Integer>();
-			int validMoves = board.getValidMoves();
-			int numValidMoves = 0;
-			for (int j = 0; j < movesMaskSize; ++j) {
-				if ((validMoves & (1 << j)) == 0) // skip invalid moves
-					continue;
-				numValidMoves++;
-				moves.add(j);
+			int deleteMoves = board.getDeleteMoves();
+			if( deleteMoves != 0 ) {
+				for (int j = 0; j < movesMaskSize; ++j) {
+					if ((deleteMoves & (1 << j)) != 0) { // skip invalid moves
+						Model.makeMove(board, j);
+					}
+				}
 			}
-			if (numValidMoves == 0)
-				break;
-			int randomMoveId = new Random().nextInt(numValidMoves);
-			/*if (moves.get(randomMoveId) == 25)
+			else {
+				ArrayList<Integer> moves = new ArrayList<Integer>();
+				int validMoves = board.getValidMoves();
+				int numValidMoves = 0;
+				for (int j = 0; j < movesMaskSize; ++j) {
+					if ((validMoves & (1 << j)) == 0) // skip invalid moves
+						continue;
+					numValidMoves++;
+					moves.add(j);
+				}
+				if (numValidMoves == 0)
+					break;
+				int randomMoveId = new Random().nextInt(numValidMoves);
+				/*if (moves.get(randomMoveId) == 25)
 				return stonesColor == Board.BLACKSGN ? */
-			Model.makeMove(board, moves.get(randomMoveId));
+				Model.makeMove(board, moves.get(randomMoveId));
+			}
 		}
 		
 		Model.countPoints(board);

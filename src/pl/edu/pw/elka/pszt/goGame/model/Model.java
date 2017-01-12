@@ -6,6 +6,7 @@ public class Model {
 	Board board; //board of a game
 	public static final int WHITEPLAYER = 0, BLACKPLAYER = 1; //int's for players
 	private char currentTurn;
+	private static final int KOI = 2;
 	
 	public Model(char firstPlayer) {
 		board = new Board(firstPlayer);
@@ -23,22 +24,28 @@ public class Model {
 			return 0;
 		}
 		int validMoves = currentBoard.getCurrentPlayerFreeCrosses();
+		int deleteMoves = 0;
 		int allStones = currentBoard.getAllStones();
 		for (int i = 0; i < Board.getCrosses(); ++i) {
 			if( (validMoves & ( 1 << i )) == 0 ) continue;	//only check empty crosses
 			//System.out.println(Integer.toString(Board.getBreath( i, allStones ), 2));			
 			if( Board.getBreath( i, allStones ) != 0 ) continue;	//stone has at least one breath, can be placed there
 			currentBoard.putStone( i );
-			if( ( getDeletedStones( currentBoard ) & currentBoard.getCurrentPlayerStones() ) != 0 ) 
+			int deletedStones = getDeletedStones( currentBoard );
+			if( ( deletedStones & currentBoard.getCurrentPlayerStones() ) != 0 ) {
 				validMoves &= (~( 1 << i ) & Board.BOARDMASK);							//putting stone there will delete some of players stones
+				if( ( deletedStones & currentBoard.getCurrentOpponentStones()) != 0 )
+					deleteMoves |= ( 1 << i );
+			}
 			currentBoard.deletePlayerStone( i );
 		}
+		currentBoard.setDeleteMoves(deleteMoves);
 		currentBoard.setValidMoves(validMoves);
 		return validMoves;
 	}
 	
 	public static int getWinner( Board currentBoard ) {
-		if ((currentBoard.getBlackPoints()) < (currentBoard.getWhitePoints()))
+		if ((currentBoard.getBlackPoints()) <= (currentBoard.getWhitePoints()))
 			return WHITEPLAYER;
 		else // if((currentBoard.getBlackPoints()) > (currentBoard.getWhitePoints()))
 			return BLACKPLAYER;
@@ -66,6 +73,7 @@ public class Model {
 	public static void countPoints (Board currentBoard)
 	{
 		int cross;
+		currentBoard.setWhitePoints(currentBoard.getWhitePoints() + KOI);
 		for (int y = 0; y < Board.BOARDSIZE; ++y) {
 			for (int x = 0; x < Board.BOARDSIZE; ++x) {
 				cross = Board.BOARDSIZE * y + x;
