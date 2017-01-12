@@ -13,9 +13,9 @@ import pl.edu.pw.elka.pszt.goGame.model.Model;
 
 public class MCTree {
 
-	private final int CHILDREN_LIMIT = 4782969;
-	private final int CHILDREN_LIMIT_JUMP = 9;
-	private final int SIMULATIONS = 4782969;
+	private final int CHILDREN_LIMIT = 5000000;
+	private int CHILDREN_LIMIT_JUMP;
+	private final int SIMULATIONS = 1000000;
 	
 	private MCNode root;
 	private String string, offset;
@@ -24,6 +24,7 @@ public class MCTree {
 	private char stonesColor;
 	
 	public MCTree(Board rootBoard, char stonesColor) {
+		CHILDREN_LIMIT_JUMP = 9;
 		root = new MCNode(null, rootBoard, CHILDREN_LIMIT/CHILDREN_LIMIT_JUMP);
 		num = 0;
 		this.stonesColor = stonesColor;
@@ -131,7 +132,8 @@ public class MCTree {
 				maxSimuls = simuls;
 			}
 		}
-		
+		if( CHILDREN_LIMIT_JUMP > 3 ) --CHILDREN_LIMIT_JUMP;
+
 		return node.moveNum;
 	}
 	
