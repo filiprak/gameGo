@@ -14,12 +14,12 @@ public class MCNode {
 	
 	public int number;
 	public int moveNum;
-	public int CHILDREN_LIMIT;
+	public int level;
 	
 	private boolean ended;
 	private boolean chooseChildren;
 	
-	public MCNode(MCNode parent, Board board, int limit) {
+	public MCNode(MCNode parent, Board board, int l) {
 		wonGames = 0;
 		lostGames = 0;
 		children = new ArrayList<MCNode>();
@@ -27,7 +27,7 @@ public class MCNode {
 		this.board = board;
 		this.ended = false;
 		this.chooseChildren = false;
-		this.CHILDREN_LIMIT = limit;
+		this.level = l;
 	}
 
 	public void addChild(MCNode child) {
@@ -59,6 +59,10 @@ public class MCNode {
 
 	public void setBoard(Board board) {
 		this.board = board;
+	}
+	
+	public int getLevel() {
+		return level;
 	}
 	
 }

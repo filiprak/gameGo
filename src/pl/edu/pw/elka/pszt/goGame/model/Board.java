@@ -205,6 +205,10 @@ public class Board {
 		return currentTurn == WHITESGN ? (~(getAllStones() | whiteNonstones)) & BOARDMASK  : (~(getAllStones() | blackNonstones)) & BOARDMASK;
 	}
 	
+	public char getCurrentTurn() {
+		return currentTurn;
+	}
+	
 	public void increaseCurrentPlayersPoints( int points ) {
 		if( currentTurn == WHITESGN ) {
 			whitePoints += points;

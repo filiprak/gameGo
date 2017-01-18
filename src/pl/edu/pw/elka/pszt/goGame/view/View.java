@@ -34,12 +34,7 @@ import pl.edu.pw.elka.pszt.goGame.model.Board;
 public class View {
 	JFrame frame;
 	
-	public static void main(String[] args) throws IOException {
-		View view = new View();
-		view.createWindow();
-	}
-	
-	private void createWindow() throws IOException {
+	public void createWindow() throws IOException {
 		//1. Create the frame.
 		frame = new JFrame("FrameDemo");
 
@@ -316,8 +311,11 @@ class OptionsWindow
 	JSpinner childrenLimitJump;
 	JSpinner explorationRatio;
 	JSpinner koiPoints;
+	JSpinner treeDepth;
+	JSpinner simulationsPerNode;
 	
 	JCheckBox playWhite;
+	JCheckBox chooseParent;
 	
 	public OptionsWindow(Controller c, int width, int height) 
 	{
@@ -330,6 +328,9 @@ class OptionsWindow
 		simulationNumber = createSpinner(options.simulations, 10000, 5000000, 1000);
 		frame.add(createPanel("Number of simulations: ", simulationNumber));
 		
+		simulationsPerNode = createSpinner(options.simulationsPerNode, 1, 1000, 1);
+		frame.add(createPanel("Simulations per node: ", simulationsPerNode));
+		
 		childrenLimit = createSpinner(options.children_limit, 10000, 5000000, 1000);
 		frame.add(createPanel("Maximum simulations per node: ", childrenLimit));
 		
@@ -339,12 +340,21 @@ class OptionsWindow
 		explorationRatio = createSpinner(options.exploration_ratio, 0, 5, 0.01);
 		frame.add(createPanel("Exploration evaluation: ", explorationRatio));
 		
+		treeDepth = createSpinner(options.treeDepth, 1, 30, 1);
+		frame.add(createPanel("Maximum tree depth: ", treeDepth));
+		
 		koiPoints = createSpinner(options.koi_points, 0, 25, 1.0);
 		frame.add(createPanel("Koi points", koiPoints));
+		
+		
 		
 		playWhite = new JCheckBox();
 		playWhite.setSelected(options.newGameColor == Board.WHITESGN);
 		frame.add(createPanel("Start as white: ", playWhite));
+		
+		chooseParent = new JCheckBox();
+		chooseParent.setSelected(options.exploreParent);
+		frame.add(createPanel("Choose parent over children: ", chooseParent));
 		
 		save = new JButton("Save");
 		save.addActionListener(new ActionListener()
@@ -432,6 +442,9 @@ class OptionsWindow
 		options.exploration_ratio = (Double)explorationRatio.getValue();
 		options.koi_points = (Double)koiPoints.getValue();
 		options.newGameColor = playWhite.isSelected() ? Board.WHITESGN : Board.BLACKSGN;
+		options.treeDepth = ((Double)treeDepth.getValue()).intValue();
+		options.simulationsPerNode = ((Double)simulationsPerNode.getValue()).intValue();
+		options.exploreParent = chooseParent.isSelected();
 		return options;
 	}
 }

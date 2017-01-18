@@ -8,4 +8,7 @@ public class AIOptions {
 	public double exploration_ratio;
 	public double koi_points;
 	public char newGameColor;
+	public boolean exploreParent;
+	public int simulationsPerNode;
+	public int treeDepth;
 }

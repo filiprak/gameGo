@@ -14,10 +14,13 @@ import pl.edu.pw.elka.pszt.goGame.view.AIOptions;
 
 public class MCTree {
 
-	private int CHILDREN_LIMIT = 10000;
-	private int CHILDREN_LIMIT_JUMP = 9;
-	private int SIMULATIONS = 10000;
+	private int CHILDREN_LIMIT = 50000;
+	private int CHILDREN_LIMIT_JUMP = 8;
+	private int SIMULATIONS = 50000;
 	private double EXPLORATION_RATIO = 1.418;
+	private int PARENT_POINTS = 10000000;
+	private int SIMULATIONS_PER_NODE = 1;
+	private int TREE_DEPTH = 5;
 	
 	private int surrender_counter;
 	private MCNode root;
@@ -27,7 +30,7 @@ public class MCTree {
 	private char stonesColor;
 	
 	public MCTree(Board rootBoard, char stonesColor) {
-		root = new MCNode(null, rootBoard, (int)(CHILDREN_LIMIT/CHILDREN_LIMIT_JUMP));
+		root = new MCNode(null, rootBoard, 0);
 		num = 0;
 		this.stonesColor = stonesColor;
 	}
@@ -41,6 +44,9 @@ public class MCTree {
 		CHILDREN_LIMIT = options.children_limit;
 		CHILDREN_LIMIT_JUMP = options.children_limit_jump;
 		EXPLORATION_RATIO = options.exploration_ratio;
+		PARENT_POINTS = options.exploreParent ? 10000000 : 0;
+		SIMULATIONS_PER_NODE = options.simulationsPerNode;
+		TREE_DEPTH = options.treeDepth;
 	}
 	
 	public AIOptions getOptions() {
@@ -49,6 +55,9 @@ public class MCTree {
 		options.children_limit = CHILDREN_LIMIT;
 		options.children_limit_jump = CHILDREN_LIMIT_JUMP;
 		options.exploration_ratio = EXPLORATION_RATIO;
+		options.exploreParent = PARENT_POINTS > 0;
+		options.simulationsPerNode = SIMULATIONS_PER_NODE;
+		options.treeDepth = TREE_DEPTH;
 		return options;
 	}
 
@@ -117,7 +126,7 @@ public class MCTree {
 			//System.out.print(moves.get(randomMoveId) + "\n");
 			
 			Model.makeMove(childBoard, moves.get(randomMoveId));
-			MCNode newNode = new MCNode(node, childBoard, (int)(node.CHILDREN_LIMIT/CHILDREN_LIMIT_JUMP));
+			MCNode newNode = new MCNode(node, childBoard, node.getLevel()+1);
 			newNode.number = ++num;
 			newNode.moveNum = moves.get(randomMoveId);
 			node.addChild(newNode);
@@ -133,29 +142,32 @@ public class MCTree {
 				newNode.end();
 			}
 
-			Board simulBoard = new Board(newNode.getBoard());
-			// simulate
-			int result = simulate(simulBoard);
+			for( int k = 0; k < SIMULATIONS_PER_NODE; ++k)
+			{
+				Board simulBoard = new Board(newNode.getBoard());
+				// simulate
+				int result = simulate(simulBoard);
 			
-			if( newNode.wonGames > 0 && moves.get(randomMoveId) == 25 ) {
+				MCNode current = newNode;
+			
+				// propagate upwards
+				while (current != null) {
+					if (stonesColor == Board.WHITESGN) {
+						current.wonGames += (1 - result);
+						current.lostGames += result;
+					} else {
+						current.wonGames += result;
+						current.lostGames += (1 - result);
+					}
+				current = current.parent;
+				}
+			}
+			
+			if( newNode.wonGames > 0 && moves.get(randomMoveId) == 25 && node.getBoard().getCurrentTurn() == stonesColor ) {
 				if( node == root ) {
 					return 25;
 				}
 				node.end();
-			}
-			
-			MCNode current = newNode;
-
-			// propagate upwards
-			while (current != null) {
-				if (stonesColor == Board.WHITESGN) {
-					current.wonGames += (1 - result);
-					current.lostGames += result;
-				} else {
-					current.wonGames += result;
-					current.lostGames += (1 - result);
-				}
-				current = current.parent;
 			}
 		}
 		
@@ -200,7 +212,7 @@ public class MCTree {
 			Model.makeMove(childBoard, j);
 			// System.out.println(childBoard.toString());
 
-			MCNode newNode = new MCNode(parent, childBoard, (int)(parent.CHILDREN_LIMIT/CHILDREN_LIMIT_JUMP));
+			MCNode newNode = new MCNode(parent, childBoard, root.getLevel() + 1);
 			newNode.number = ++num;
 			newNode.moveNum = j;
 			parent.addChild(newNode);
@@ -235,7 +247,7 @@ public class MCTree {
 			if( node == root ) {
 				maxRatio = node.choosingChildren() ? -1 : 3;
 			} else {
-				maxRatio = node.choosingChildren() ? -1 : calculateRatio(node.parent, node);	//don't choose worse children unless you have to
+				maxRatio = node.choosingChildren() ? -1 : calculateRatio(node.parent, node) + PARENT_POINTS;	//don't choose worse children unless you have to
 			}
 			bestChild = node;
 			for (MCNode child : node.children) {
@@ -243,6 +255,9 @@ public class MCTree {
 					continue;
 				}
 				if( child.wonGames + child.lostGames > limit  ) {
+					continue;
+				}
+				if( child.getLevel() - root.getLevel() > TREE_DEPTH ) {
 					continue;
 				}
 				float rat = calculateRatio(node, child);
@@ -390,7 +405,7 @@ public class MCTree {
 		}
 		Board gameBoard = new Board(root.getBoard());
 		Model.makeMove(gameBoard, position);
-		int child_limit = root.CHILDREN_LIMIT;
-		root = new MCNode(null, gameBoard, (int)(child_limit/CHILDREN_LIMIT_JUMP));
+		int level = root.getLevel();
+		root = new MCNode(null, gameBoard, level+1);
 	}
 }

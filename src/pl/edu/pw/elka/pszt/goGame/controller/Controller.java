@@ -108,10 +108,12 @@ public class Controller {
 	}
 	
 	public void newGame() {
+		AIOptions options = AI.getOptions();
 		model = new Model(Board.BLACKSGN);
 		currentTurn = Board.BLACKSGN;
 		opponentsColor = newGameColor == Board.WHITESGN ? Board.BLACKSGN : Board.WHITESGN;
 		AI = new ArtIntelligence(opponentsColor, model.getBoardObject());
+		AI.setOptions(options);
 		if( opponentsColor == Board.BLACKSGN) {
 			int move = AI.makeMove();
 			currentTurn = model.makeMove(move);
