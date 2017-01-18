@@ -21,17 +21,20 @@ public class Controller {
 
 	char currentTurn;
 	private ArtIntelligence AI;
-	
+	private char opponentsColor;
 	public Controller(View vview) {
 
 		model = new Model(Board.BLACKSGN);
 		currentTurn = Board.BLACKSGN;
 		view = vview;
 		//model = new Model();
-		AI = new ArtIntelligence(Board.BLACKSGN, model.getBoardObject());
-		int move = AI.makeMove();
-		model.makeMove(move);
-		AI.moveRoot(move);
+		opponentsColor = Board.BLACKSGN;
+		AI = new ArtIntelligence(opponentsColor, model.getBoardObject());
+		if( opponentsColor == Board.BLACKSGN) {
+			int move = AI.makeMove();
+			model.makeMove(move);
+			AI.moveRoot(move);
+		}
 	}
 	
 	public int getWhiteStones() {
@@ -46,28 +49,34 @@ public class Controller {
 	}
 	public void makeMove(int position) {
 		int validMoves = model.getValidMoves();
-		if( ((1 << position) & validMoves) != 0) {
+		if( ((1 << position) & validMoves) != 0 && !model.isEnded() ) {
 			currentTurn = model.makeMove(position);
-			view.updatePanel();
 			AI.moveRoot(position);
 			if(model.isEnded()) {
 				view.showResults();
 				return;
-			}
-			while( currentTurn == Board.BLACKSGN ) {
-				int move = AI.makeMove();
-				currentTurn = model.makeMove(move);
-				AI.moveRoot(move);
-				if(model.isEnded()) {
-					view.showResults();
-					return;
-				}
 			}
 		}
 		else {
 			//incorrect move
 		}
 	}
+	
+	public void makeOpponentMove() {
+		if( model.isEnded() )
+			return;
+		while( currentTurn == opponentsColor ) {
+			int move = AI.makeMove();
+			currentTurn = model.makeMove(move);
+			AI.moveRoot(move);
+			if(model.isEnded()) {
+				view.showResults();
+				return;
+			}
+		}
+	}
+	
+	
 	
 	public int getWhitePoints() {
 		return model.getWhitePoints();
@@ -78,6 +87,15 @@ public class Controller {
 	
 	public void newGame() {
 		model = new Model(Board.BLACKSGN);
+		currentTurn = Board.BLACKSGN;
+		opponentsColor = Board.BLACKSGN;
+		AI = new ArtIntelligence(opponentsColor, model.getBoardObject());
+		if( opponentsColor == Board.BLACKSGN) {
+			int move = AI.makeMove();
+			model.makeMove(move);
+			AI.moveRoot(move);
+		}
+		view.updatePanel();
 	}
 	public void exitGame() {
 		view.getFrame().dispatchEvent(new WindowEvent(view.getFrame(), WindowEvent.WINDOW_CLOSING));

@@ -55,7 +55,7 @@ public class View {
 	    
 		controller = new Controller(this);
 	    
-	    pane = new GamePanel(controller);
+	    pane = new GamePanel(controller, this);
 		
 		mP = new MenuPanel(controller, this);
 		frame.add(mP, BorderLayout.EAST);
@@ -93,15 +93,17 @@ public class View {
 }
 
 class GamePanel extends JPanel {
-	public GamePanel(Controller c) {
+	public GamePanel(Controller c, View v) {
 		super();
 		controller = c;
 		playersTurn = true;
+		view = v;
 		addMouseListener(new MouseHandler());
+		opponentThinks = false;
 	}
 	
 	public void updatePanel() {
-		this.repaint();
+		 this.paintComponent(this.getGraphics());
 	}
 	
 	 @Override
@@ -110,10 +112,12 @@ class GamePanel extends JPanel {
      	BufferedImage whiteStone;
      	BufferedImage blackStone;
      	BufferedImage board;
+     	BufferedImage hourglass;
 		try {
 			whiteStone = ImageIO.read(new File("whiteStone.png"));
 			blackStone = ImageIO.read(new File("blackStone.png"));
 	     	board = ImageIO.read(new File("board.png"));
+	     	hourglass = ImageIO.read(new File("hourglass.png"));
 	     	
 			g.drawImage(board, 0, 0, null);
 	     	int stones = controller.getWhiteStones();
@@ -132,6 +136,9 @@ class GamePanel extends JPanel {
 	     			g.drawImage(blackStone, STARTING_POINT + x * STONES_DISTANCE, STARTING_POINT + y * STONES_DISTANCE, null);
 	     		}
 	     	}
+	     	if( opponentThinks ) {
+	     		g.drawImage(hourglass, 600, 600, null);
+	     	}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -146,7 +153,11 @@ class GamePanel extends JPanel {
 		 if( column == -1 || row == -1) return;
 		 
 		 controller.makeMove(column + row * 5);
-		 this.repaint();
+		 opponentThinks = true;
+		 updatePanel();
+		 controller.makeOpponentMove();
+		 opponentThinks = false;
+		 updatePanel();
 	 }
 	 
 	 private int getPos(double x) {
@@ -164,6 +175,8 @@ class GamePanel extends JPanel {
 	 
 	 private Controller controller;
 	 private boolean playersTurn;
+	 private View view;
+	 private boolean opponentThinks;
 
 	 final int STARTING_POINT = 40;
 	 final int STONES_DISTANCE = 160;
@@ -197,9 +210,9 @@ class MenuPanel extends JPanel{
 	
 
 	public MenuPanel(Controller cc, View v) {
+		super();
 		c = cc;
 		view = v;
-		new JPanel ();
 		this.setPreferredSize(new Dimension(205,800));
 		this.setBackground(Color.YELLOW);
 		this.txt = new JLabel("                      GO");
@@ -248,7 +261,7 @@ class MenuPanel extends JPanel{
 	
 	public void getUpdatePanel() {
 		view.updatePanel();
-	} 
+	}
 	
 	private class mPActionListener implements ActionListener
 	{

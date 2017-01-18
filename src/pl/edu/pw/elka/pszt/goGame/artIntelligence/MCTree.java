@@ -13,9 +13,9 @@ import pl.edu.pw.elka.pszt.goGame.model.Model;
 
 public class MCTree {
 
-	private int CHILDREN_LIMIT = 150000;
+	private int CHILDREN_LIMIT = 100000;
 	private double CHILDREN_LIMIT_JUMP = 9;
-	private final int SIMULATIONS = 150000;
+	private final int SIMULATIONS = 100000;
 	
 	private int surrender_counter;
 	private MCNode root;
@@ -118,6 +118,13 @@ public class MCTree {
 			Board simulBoard = new Board(newNode.getBoard());
 			// simulate
 			int result = simulate(simulBoard);
+			
+			if( newNode.wonGames > 0 && moves.get(randomMoveId) == 25 ) {
+				if( node == root ) {
+					return 25;
+				}
+				node.end();
+			}
 			
 			MCNode current = newNode;
 
