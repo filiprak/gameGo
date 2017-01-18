@@ -56,6 +56,10 @@ public class MCNode {
 	public boolean choosingChildren() {
 		return chooseChildren;
 	}
+	
+	public void chooseChildren() {
+		chooseChildren = true;
+	}
 
 	public void setBoard(Board board) {
 		this.board = board;

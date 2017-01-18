@@ -220,11 +220,11 @@ class MenuPanel extends JPanel{
 		this.txt = new JLabel("                      GO");
 		this.txt.setPreferredSize(new Dimension(200, 300));
 		this.add(txt);
-		this.newGame = new JButton("Nowa Gra");
+		this.newGame = new JButton("New Game");
 		this.newGame.setPreferredSize(new Dimension(200,100));
 		this.newGame.addActionListener(new mPActionListener());
 		this.add(newGame);
-		this.pas = new JButton("Pas");
+		this.pas = new JButton("End");
 		this.pas.setPreferredSize(new Dimension(200,100));
 		this.pas.addActionListener(new mPActionListener());
 		this.add(pas);
@@ -232,7 +232,7 @@ class MenuPanel extends JPanel{
 		this.options.setPreferredSize(new Dimension(200,100));
 		this.options.addActionListener(new mPActionListener());
 		this.add(options);
-		this.exit = new JButton("Wyjście");
+		this.exit = new JButton("Exit");
 		this.exit.setPreferredSize(new Dimension(200,100));
 		this.exit.addActionListener(new mPActionListener());
 		this.add(exit);

@@ -99,37 +99,54 @@ public class MCTree {
 			if( node == null ) {
 				break;
 			}
-			// add new node
-			ArrayList<Integer> moves = new ArrayList<Integer>();
-			int validMoves = node.getBoard().getSimulationMoves();
-			int numValidMoves = 0;
-			for (int j = 0; j < movesMaskSize; ++j) {
-				if ((validMoves & (1 << j)) == 0) // skip invalid moves
-					continue;
-				if( j != 25 ) {
-				for( int k = 0; k < 3; ++k ) {	
-					numValidMoves++;
-					moves.add(j);
+			
+			int randomedPosition = 25;
+			
+			int deleteMoves = node.getBoard().getDeleteMoves();
+			if( deleteMoves != 0 ) {
+				for (int j = 0; j < movesMaskSize; ++j) {
+					if ((deleteMoves & (1 << j)) != 0) { // skip invalid moves
+						node.chooseChildren();
+						randomedPosition = j;
+						break;
+					}
 				}
+			}
+			else {
+				// add new node
+				ArrayList<Integer> moves = new ArrayList<Integer>();
+				int validMoves = node.getBoard().getSimulationMoves();
+				int numValidMoves = 0;
+				for (int j = 0; j < movesMaskSize; ++j) {
+					if ((validMoves & (1 << j)) == 0) // skip invalid moves
+						continue;
+					if( j != 25 ) {
+						for( int k = 0; k < 3; ++k ) {	
+							numValidMoves++;
+							moves.add(j);
+						}
+					}
+					else {
+						numValidMoves++;
+						moves.add(j);
+					}	
 				}
-				else {
-					numValidMoves++;
-					moves.add(j);
-				}
+				int randomMoveId = rand.nextInt(numValidMoves);
+				randomedPosition = moves.get(randomMoveId);
 			}
 			
 			
-			Board childBoard = new Board(node.getBoard());
-			int randomMoveId = rand.nextInt(numValidMoves);
+			
 			//System.out.print(moves.get(randomMoveId) + "\n");
 			
-			Model.makeMove(childBoard, moves.get(randomMoveId));
+			Board childBoard = new Board(node.getBoard());
+			Model.makeMove(childBoard, randomedPosition);
 			MCNode newNode = new MCNode(node, childBoard, node.getLevel()+1);
 			newNode.number = ++num;
-			newNode.moveNum = moves.get(randomMoveId);
+			newNode.moveNum = randomedPosition;
 			node.addChild(newNode);
 			
-			node.deleteSimulationMove(moves.get(randomMoveId));
+			node.deleteSimulationMove(randomedPosition);
 			if( newNode.getBoard().isEnded() ) {
 				newNode.end();
 			}
@@ -158,7 +175,7 @@ public class MCTree {
 				}
 			}
 			
-			if( newNode.wonGames > 0 && moves.get(randomMoveId) == 25 && node.getBoard().getCurrentTurn() == stonesColor ) {
+			if( newNode.wonGames > 0 && randomedPosition == 25 && node.getBoard().getCurrentTurn() == stonesColor ) {
 				if( node == root ) {
 					return 25;
 				}
