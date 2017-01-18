@@ -13,6 +13,7 @@ import java.awt.event.WindowEvent;
 
 
 import pl.edu.pw.elka.pszt.goGame.model.Model;
+import pl.edu.pw.elka.pszt.goGame.view.AIOptions;
 import pl.edu.pw.elka.pszt.goGame.view.View;
 
 public class Controller {
@@ -22,17 +23,20 @@ public class Controller {
 	char currentTurn;
 	private ArtIntelligence AI;
 	private char opponentsColor;
+	private char newGameColor;
+	
+	
 	public Controller(View vview) {
-
 		model = new Model(Board.BLACKSGN);
 		currentTurn = Board.BLACKSGN;
 		view = vview;
 		//model = new Model();
 		opponentsColor = Board.BLACKSGN;
+		newGameColor = Board.WHITESGN;
 		AI = new ArtIntelligence(opponentsColor, model.getBoardObject());
 		if( opponentsColor == Board.BLACKSGN) {
 			int move = AI.makeMove();
-			model.makeMove(move);
+			currentTurn = model.makeMove(move);
 			AI.moveRoot(move);
 		}
 	}
@@ -48,7 +52,11 @@ public class Controller {
 		model.countPoints();
 	}
 	public void makeMove(int position) {
+		if( model.isEnded() ) {
+			return;
+		}
 		int validMoves = model.getValidMoves();
+		if( currentTurn == opponentsColor) return;
 		if( ((1 << position) & validMoves) != 0 && !model.isEnded() ) {
 			currentTurn = model.makeMove(position);
 			AI.moveRoot(position);
@@ -63,8 +71,10 @@ public class Controller {
 	}
 	
 	public void makeOpponentMove() {
-		if( model.isEnded() )
+		if( model.isEnded() ) {
+			view.showResults();
 			return;
+		}
 		while( currentTurn == opponentsColor ) {
 			int move = AI.makeMove();
 			currentTurn = model.makeMove(move);
@@ -76,23 +86,35 @@ public class Controller {
 		}
 	}
 	
+	public AIOptions getOptions() {
+		AIOptions options = AI.getOptions();
+		options.newGameColor = this.newGameColor;
+		options.koi_points = model.getKoitPoints();
+		return options;
+	}
+	
+	public void setOptions(AIOptions options) {
+		newGameColor = options.newGameColor;
+		model.setKoiPoints(options.koi_points);
+		AI.setOptions(options);
+	}
 	
 	
-	public int getWhitePoints() {
+	public double getWhitePoints() {
 		return model.getWhitePoints();
 	}
-	public int getBlackPoints() {
+	public double getBlackPoints() {
 		return model.getBlackPoints();
 	}
 	
 	public void newGame() {
 		model = new Model(Board.BLACKSGN);
 		currentTurn = Board.BLACKSGN;
-		opponentsColor = Board.BLACKSGN;
+		opponentsColor = newGameColor == Board.WHITESGN ? Board.BLACKSGN : Board.WHITESGN;
 		AI = new ArtIntelligence(opponentsColor, model.getBoardObject());
 		if( opponentsColor == Board.BLACKSGN) {
 			int move = AI.makeMove();
-			model.makeMove(move);
+			currentTurn = model.makeMove(move);
 			AI.moveRoot(move);
 		}
 		view.updatePanel();

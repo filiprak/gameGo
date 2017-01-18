@@ -10,7 +10,7 @@ public class Board {
 	public static final int DELETED_STONE_POINT = 1;
 	
 	private int whiteStones, blackStones, whiteNonstones, blackNonstones;
-	private int whitePoints, blackPoints;
+	private double whitePoints, blackPoints;
 	private boolean whiteMoves, blackMoves;
 	private int deleteMoves;
 	
@@ -277,11 +277,11 @@ public class Board {
 		this.whiteStones = whiteStones;
 	}
 
-	public int getWhitePoints() {
+	public double getWhitePoints() {
 		return whitePoints;
 	}
 
-	public void setWhitePoints(int whitePoints) {
+	public void setWhitePoints(double whitePoints) {
 		this.whitePoints = whitePoints;
 	}
 
@@ -293,11 +293,11 @@ public class Board {
 		this.blackStones = blackStones;
 	}
 
-	public int getBlackPoints() {
+	public double getBlackPoints() {
 		return blackPoints;
 	}
 
-	public void setBlackPoints(int blackPoints) {
+	public void setBlackPoints(double blackPoints) {
 		this.blackPoints = blackPoints;
 	}
 

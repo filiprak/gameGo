@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,12 +19,17 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 
 
 import pl.edu.pw.elka.pszt.goGame.controller.Controller;
+import pl.edu.pw.elka.pszt.goGame.model.Board;
 
 public class View {
 	JFrame frame;
@@ -202,6 +208,7 @@ class MenuPanel extends JPanel{
 	 JLabel txt;
 	 JButton newGame;
 	 JButton pas;
+	 JButton options;
 	 JButton exit;
 	
 	Controller c;
@@ -226,6 +233,10 @@ class MenuPanel extends JPanel{
 		this.pas.setPreferredSize(new Dimension(200,100));
 		this.pas.addActionListener(new mPActionListener());
 		this.add(pas);
+		this.options = new JButton("Options");
+		this.options.setPreferredSize(new Dimension(200,100));
+		this.options.addActionListener(new mPActionListener());
+		this.add(options);
 		this.exit = new JButton("Wyjście");
 		this.exit.setPreferredSize(new Dimension(200,100));
 		this.exit.addActionListener(new mPActionListener());
@@ -245,22 +256,18 @@ class MenuPanel extends JPanel{
 		frame.setLocation(szer/3, wys/3);
 		c.getCountPoints();
 		if(c.getBlackPoints() < c.getWhitePoints()) {
-			JLabel wW = new JLabel("<html>Wygrał Biały! <br> Punkty Białego:<html>" + Integer.toString(c.getWhitePoints()) + "<html><br> Punkty Czarnego: <html>" + Integer.toString(c.getBlackPoints()));
+			JLabel wW = new JLabel("<html>Wygrał Biały! <br> Punkty Białego:<html>" + Double.toString(c.getWhitePoints()) + "<html><br> Punkty Czarnego: <html>" + Double.toString(c.getBlackPoints()));
 			frame.add(wW);
 		}
 		else if(c.getBlackPoints() > c.getWhitePoints()) {
-			JLabel bW = new JLabel("<html>Wygrał Czarny!<br> Punkty Białego:<html>" + Integer.toString(c.getWhitePoints()) + "<html><br> Punkty Czarnego: <html>" + Integer.toString(c.getBlackPoints()));
+			JLabel bW = new JLabel("<html>Wygrał Czarny!<br> Punkty Białego:<html>" + Double.toString(c.getWhitePoints()) + "<html><br> Punkty Czarnego: <html>" + Double.toString(c.getBlackPoints()));
 			frame.add(bW);
 		}
 		else {
-			JLabel dW = new JLabel("<html>Remis! <br> Punkty Białego:<html>" + Integer.toString(c.getWhitePoints()) + "<html><br> Punkty Czarnego: <html>" + Integer.toString(c.getBlackPoints()));
+			JLabel dW = new JLabel("<html>Remis! <br> Punkty Białego:<html>" + Double.toString(c.getWhitePoints()) + "<html><br> Punkty Czarnego: <html>" + Double.toString(c.getBlackPoints()));
 			frame.add(dW);
 		}
 		frame.setVisible(true);
-	}
-	
-	public void getUpdatePanel() {
-		view.updatePanel();
 	}
 	
 	private class mPActionListener implements ActionListener
@@ -271,12 +278,167 @@ class MenuPanel extends JPanel{
 				c.newGame();
 			else if(e.getSource() == pas) {
 				c.makeMove(25);
-				getUpdatePanel();
+				c.makeOpponentMove();
+				view.updatePanel();
 			}
 			else if(e.getSource() == exit) {
 				c.exitGame();	
 			}
+			else if(e.getSource() == options) {
+				OptionsWindow ow = new OptionsWindow(c, 800, 600);
+			}
 		}	
 	}
 }
+
+
+class OptionsWindow
+{
+	 /**
+	 * Responsible for creating a window with options.
+	 */
+	private JFrame frame;
+	/**
+	 * connects with a controller responsible for a logic of an application.
+	 */
+	private Controller controller;
+	/**
+	 * button which saves changes, sends them to a controller and closes a window.
+	 */
+	private JButton save;
+	/**
+	 * button which abandons changes and closes a window.
+	 */
+	private JButton cancel;
+	
+	JSpinner simulationNumber;
+	JSpinner childrenLimit;
+	JSpinner childrenLimitJump;
+	JSpinner explorationRatio;
+	JSpinner koiPoints;
+	
+	JCheckBox playWhite;
+	
+	public OptionsWindow(Controller c, int width, int height) 
+	{
+		frame = new JFrame("Options");
+		frame.setResizable(false);
+		controller = c;
+		frame.setLayout(new GridLayout(0,1));
+		AIOptions options = controller.getOptions();
+		
+		simulationNumber = createSpinner(options.simulations, 10000, 5000000, 1000);
+		frame.add(createPanel("Number of simulations: ", simulationNumber));
+		
+		childrenLimit = createSpinner(options.children_limit, 10000, 5000000, 1000);
+		frame.add(createPanel("Maximum simulations per node: ", childrenLimit));
+		
+		childrenLimitJump = createSpinner(options.children_limit_jump, 1, 25, 1);
+		frame.add(createPanel("Tree broad ratio: ", childrenLimitJump));
+		
+		explorationRatio = createSpinner(options.exploration_ratio, 0, 5, 0.01);
+		frame.add(createPanel("Exploration evaluation: ", explorationRatio));
+		
+		koiPoints = createSpinner(options.koi_points, 0, 25, 1.0);
+		frame.add(createPanel("Koi points", koiPoints));
+		
+		playWhite = new JCheckBox();
+		playWhite.setSelected(options.newGameColor == Board.WHITESGN);
+		frame.add(createPanel("Start as white: ", playWhite));
+		
+		save = new JButton("Save");
+		save.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent event)
+			{
+				controller.setOptions(createMessage());
+				closeFrame();
+			}		
+		});	
+		
+		cancel = new JButton("Cancel");
+		cancel.addActionListener(new ActionListener()
+		{		
+			public void actionPerformed(ActionEvent event)
+			{
+				closeFrame();
+			}	
+		});
+		
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.add(save);
+		buttonPanel.add(cancel);
+		frame.add(buttonPanel);
+		
+		
+		frame.setSize(width, height);
+		frame.setVisible(true);
+	}
+		
+	/**
+	 *	Function responsible for closing this window. 
+	 */
+	private void closeFrame()
+	{
+		frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+	}
+	
+	/**
+	 * Creates and returns spinner with given parameters.
+	 * @param cur starting position of spinner
+	 * @param mn minimal value of spinner
+	 * @param mx maximal value of spinner
+	 * @param stp value of a single step
+	 * @return created spinner
+	 */
+	private JSpinner createSpinner(double cur, double mn, double mx, double stp)
+	{
+		JSpinner m_numberSpinner;
+	    SpinnerNumberModel m_numberSpinnerModel;
+	    Double current = new Double(cur);
+	    Double min = new Double(mn);
+	    Double max = new Double(mx);
+	    Double step = new Double(stp);
+	    m_numberSpinnerModel = new SpinnerNumberModel(current, min, max, step);
+	    m_numberSpinner = new JSpinner(m_numberSpinnerModel);
+	    m_numberSpinner.setPreferredSize(new Dimension(100, 25));
+	    return m_numberSpinner;
+	}
+	
+	/**
+	 * Creates JPanel with a labeled JComponent
+	 * @param label value to be displayed as a label
+	 * @param comp component to be added to a panel
+	 * @return created panel with added elements
+	 */
+	private JPanel createPanel(String label, JComponent comp)
+	{
+		JPanel panel = new JPanel();
+		panel.add(new JLabel(label));
+		panel.add(comp);
+		return panel;
+	}
+	
+	/**
+	 * Creates a message for a controller to send him options user set.
+	 * @return message filled with options, ready to be sent to a controller
+	 */
+	private AIOptions createMessage()
+	{
+		AIOptions options = new AIOptions();
+		options.simulations = ((Double)(simulationNumber.getValue())).intValue();
+		options.children_limit = ((Double)childrenLimit.getValue()).intValue();
+		options.children_limit_jump = ((Double)childrenLimitJump.getValue()).intValue();
+		options.exploration_ratio = (Double)explorationRatio.getValue();
+		options.koi_points = (Double)koiPoints.getValue();
+		options.newGameColor = playWhite.isSelected() ? Board.WHITESGN : Board.BLACKSGN;
+		return options;
+	}
+}
+
+
+
+
+
+
 

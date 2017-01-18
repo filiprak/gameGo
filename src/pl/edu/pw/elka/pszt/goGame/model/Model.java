@@ -6,7 +6,7 @@ public class Model {
 	Board board; //board of a game
 	public static final int WHITEPLAYER = 0, BLACKPLAYER = 1; //int's for players
 	private char currentTurn;
-	private static final int KOI = 2;
+	private static double KOI = 2.5;
 	
 	public Model(char firstPlayer) {
 		board = new Board(firstPlayer);
@@ -104,7 +104,7 @@ public class Model {
 	}
 	
 	
-	public int getPoints(int player, Board currentBoard) {
+	public double getPoints(int player, Board currentBoard) {
 		if (player == WHITEPLAYER)
 			return currentBoard.getWhitePoints();
 		else if (player == BLACKPLAYER)
@@ -116,7 +116,7 @@ public class Model {
 	 * @param player
 	 * @return
 	 */
-	public int getPoints(int player) {
+	public double getPoints(int player) {
 		return getPoints(player, board);
 	}
 	
@@ -214,10 +214,16 @@ public class Model {
 	public int getBlackStones() {
 		return board.getBlackStones();
 	}
-	public int getWhitePoints() {
+	public double getWhitePoints() {
 		return board.getWhitePoints();
 	}
-	public int getBlackPoints() {
+	public double getBlackPoints() {
 		return board.getBlackPoints();
+	}
+	public void setKoiPoints(double k) {
+		KOI = k;
+	}
+	public double getKoitPoints() {
+		return KOI;
 	}
 }

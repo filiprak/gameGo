@@ -10,12 +10,14 @@ import java.util.Stack;
 
 import pl.edu.pw.elka.pszt.goGame.model.Board;
 import pl.edu.pw.elka.pszt.goGame.model.Model;
+import pl.edu.pw.elka.pszt.goGame.view.AIOptions;
 
 public class MCTree {
 
-	private int CHILDREN_LIMIT = 100000;
-	private double CHILDREN_LIMIT_JUMP = 9;
-	private final int SIMULATIONS = 100000;
+	private int CHILDREN_LIMIT = 10000;
+	private int CHILDREN_LIMIT_JUMP = 9;
+	private int SIMULATIONS = 10000;
+	private double EXPLORATION_RATIO = 1.418;
 	
 	private int surrender_counter;
 	private MCNode root;
@@ -32,6 +34,22 @@ public class MCTree {
 
 	public MCNode getRoot() {
 		return root;
+	}
+	
+	public void setOptions(AIOptions options) {
+		SIMULATIONS = options.simulations;
+		CHILDREN_LIMIT = options.children_limit;
+		CHILDREN_LIMIT_JUMP = options.children_limit_jump;
+		EXPLORATION_RATIO = options.exploration_ratio;
+	}
+	
+	public AIOptions getOptions() {
+		AIOptions options = new AIOptions();
+		options.simulations = SIMULATIONS;
+		options.children_limit = CHILDREN_LIMIT;
+		options.children_limit_jump = CHILDREN_LIMIT_JUMP;
+		options.exploration_ratio = EXPLORATION_RATIO;
+		return options;
 	}
 
 	/**
@@ -257,7 +275,7 @@ public class MCTree {
 	
 	private float calculateRatio(MCNode parent, MCNode child) {
 		float ratio = (float) child.wonGames / (child.wonGames + child.lostGames);
-		ratio += 1.418 * Math.sqrt(Math.log(parent.wonGames + parent.lostGames) / 
+		ratio += EXPLORATION_RATIO * Math.sqrt(Math.log(parent.wonGames + parent.lostGames) / 
 				(child.wonGames + child.lostGames));
 		//float ratio = (float) child.wonGames / (child.wonGames + child.lostGames);
 		return ratio;

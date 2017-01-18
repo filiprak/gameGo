@@ -1,6 +1,8 @@
 package pl.edu.pw.elka.pszt.goGame.artIntelligence;
 
 import pl.edu.pw.elka.pszt.goGame.model.Board;
+import pl.edu.pw.elka.pszt.goGame.view.AIOptions;
+
 
 public class ArtIntelligence {
 	
@@ -20,5 +22,13 @@ public class ArtIntelligence {
 	
 	public void moveRoot(int position) {
 		tree.moveRoot(position);
+	}
+	
+	public void setOptions(AIOptions options) {
+		tree.setOptions(options);
+	}
+	
+	public AIOptions getOptions() {
+		return tree.getOptions();
 	}
 }
