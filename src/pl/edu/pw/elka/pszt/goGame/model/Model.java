@@ -27,14 +27,14 @@ public class Model {
 		int deleteMoves = 0;
 		int allStones = currentBoard.getAllStones();
 		for (int i = 0; i < Board.getCrosses(); ++i) {
-			if( (validMoves & ( 1 << i )) == 0 ) continue;	//only check empty crosses
-			//System.out.println(Integer.toString(Board.getBreath( i, allStones ), 2));			
-			if( Board.getBreath( i, allStones ) != 0 ) continue;	//stone has at least one breath, can be placed there
+			if( (validMoves & ( 1 << i )) == 0 ) continue;	//only check empty crosses	
+			//if( Board.getBreath( i, allStones ) != 0 ) continue;	//stone has at least one breath, can be placed there
 			currentBoard.putStone( i );
 			int deletedStones = getDeletedStones( currentBoard );
 			if( ( deletedStones & currentBoard.getCurrentPlayerStones() ) != 0 ) {
 				validMoves &= (~( 1 << i ) & Board.BOARDMASK);							//putting stone there will delete some of players stones
-				if( ( deletedStones & currentBoard.getCurrentOpponentStones()) != 0 )
+			} 
+			else if( ( deletedStones & currentBoard.getCurrentOpponentStones()) != 0 ) {
 					deleteMoves |= ( 1 << i );
 			}
 			currentBoard.deletePlayerStone( i );

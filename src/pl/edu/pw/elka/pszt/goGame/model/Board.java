@@ -46,7 +46,7 @@ public class Board {
 		validMoves = b.validMoves;
 		validSimulationMoves = b.validSimulationMoves;
 		deleteMoves = b.deleteMoves;
-}
+	}
 	
 
 	public void putStone(int position) throws RuntimeException {

@@ -20,6 +20,7 @@ public class Controller {
 	//private final View view;
 
 	char currentTurn;
+	private ArtIntelligence AI;
 	
 	public Controller(View vview) {
 
@@ -27,8 +28,10 @@ public class Controller {
 		currentTurn = Board.BLACKSGN;
 		view = vview;
 		//model = new Model();
-
-
+		AI = new ArtIntelligence(Board.BLACKSGN, model.getBoardObject());
+		int move = AI.makeMove();
+		model.makeMove(move);
+		AI.moveRoot(move);
 	}
 	
 	public int getWhiteStones() {
@@ -42,16 +45,19 @@ public class Controller {
 		model.countPoints();
 	}
 	public void makeMove(int position) {
-		ArtIntelligence AI = new ArtIntelligence(Board.WHITESGN);
 		int validMoves = model.getValidMoves();
 		if( ((1 << position) & validMoves) != 0) {
 			currentTurn = model.makeMove(position);
+			view.updatePanel();
+			AI.moveRoot(position);
 			if(model.isEnded()) {
 				view.showResults();
 				return;
 			}
-			while( currentTurn == Board.WHITESGN ) {
-				currentTurn = model.makeMove(AI.makeMove(model.getGameBoard()));
+			while( currentTurn == Board.BLACKSGN ) {
+				int move = AI.makeMove();
+				currentTurn = model.makeMove(move);
+				AI.moveRoot(move);
 				if(model.isEnded()) {
 					view.showResults();
 					return;
@@ -72,7 +78,6 @@ public class Controller {
 	
 	public void newGame() {
 		model = new Model(Board.BLACKSGN);
-		view.updatePanel();
 	}
 	public void exitGame() {
 		view.getFrame().dispatchEvent(new WindowEvent(view.getFrame(), WindowEvent.WINDOW_CLOSING));
