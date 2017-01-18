@@ -24,7 +24,7 @@ public class MCNode {
 		lostGames = 0;
 		children = new ArrayList<MCNode>();
 		this.parent = parent;
-		this.board = board;
+		this.board = new Board(board);
 		this.ended = false;
 		this.chooseChildren = false;
 		this.level = l;

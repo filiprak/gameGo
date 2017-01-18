@@ -22,7 +22,6 @@ public class MCTree {
 	private int SIMULATIONS_PER_NODE = 1;
 	private int TREE_DEPTH = 5;
 	
-	private int surrender_counter;
 	private MCNode root;
 	private String string, offset;
 	public static int num = 0;
@@ -78,7 +77,6 @@ public class MCTree {
 		for (MCNode child : root.children) {
 			addAllValidMoves(child);
 		}*/
-		surrender_counter = 0;
 		Random rand = new Random();
 		{
 		Board simulBoard = new Board(root.getBoard());
@@ -130,9 +128,6 @@ public class MCTree {
 			newNode.number = ++num;
 			newNode.moveNum = moves.get(randomMoveId);
 			node.addChild(newNode);
-			
-			if( moves.get(randomMoveId) == 25 )
-				++surrender_counter;
 			
 			node.deleteSimulationMove(moves.get(randomMoveId));
 			if( newNode.getBoard().isEnded() ) {
@@ -192,7 +187,6 @@ public class MCTree {
 		}
 		if( CHILDREN_LIMIT_JUMP > 3 ) --CHILDREN_LIMIT_JUMP;
 
-		System.out.println(surrender_counter);
 		return node.moveNum;
 	}
 	

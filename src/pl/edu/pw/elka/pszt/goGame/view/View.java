@@ -346,8 +346,6 @@ class OptionsWindow
 		koiPoints = createSpinner(options.koi_points, 0, 25, 1.0);
 		frame.add(createPanel("Koi points", koiPoints));
 		
-		
-		
 		playWhite = new JCheckBox();
 		playWhite.setSelected(options.newGameColor == Board.WHITESGN);
 		frame.add(createPanel("Start as white: ", playWhite));

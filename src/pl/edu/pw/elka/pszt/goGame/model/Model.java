@@ -11,6 +11,7 @@ public class Model {
 	public Model(char firstPlayer) {
 		board = new Board(firstPlayer);
 		setValidMoves(board);
+		currentTurn = Board.BLACKSGN;
 	}
 	
 	/**
@@ -21,6 +22,7 @@ public class Model {
 	public static int setValidMoves(Board currentBoard) {
 		if( currentBoard.isEnded() ) {
 			currentBoard.setValidMoves(0);
+			currentBoard.setDeleteMoves(0);
 			return 0;
 		}
 		int validMoves = currentBoard.getCurrentPlayerFreeCrosses();

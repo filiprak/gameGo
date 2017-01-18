@@ -33,6 +33,7 @@ public class Controller {
 		//model = new Model();
 		opponentsColor = Board.BLACKSGN;
 		newGameColor = Board.WHITESGN;
+		opponentsColor = newGameColor == Board.WHITESGN ? Board.BLACKSGN : Board.WHITESGN;
 		AI = new ArtIntelligence(opponentsColor, model.getBoardObject());
 		if( opponentsColor == Board.BLACKSGN) {
 			int move = AI.makeMove();
