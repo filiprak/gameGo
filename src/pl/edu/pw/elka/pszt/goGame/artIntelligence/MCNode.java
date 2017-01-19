@@ -16,8 +16,9 @@ public class MCNode {
 	public int moveNum;
 	public int level;
 	
-	private boolean ended;
+	private int ended;
 	private boolean chooseChildren;
+	public static int simulation; 
 	
 	public MCNode(MCNode parent, Board board, int l) {
 		wonGames = 0;
@@ -25,7 +26,7 @@ public class MCNode {
 		children = new ArrayList<MCNode>();
 		this.parent = parent;
 		this.board = new Board(board);
-		this.ended = false;
+		this.ended = 0;
 		this.chooseChildren = false;
 		this.level = l;
 	}
@@ -46,11 +47,19 @@ public class MCNode {
 	}
 	
 	public void end() {
-		ended = true;
+		ended = simulation;
+	}
+	
+	public void endDefinitely() {
+		ended = 100000;
 	}
 	
 	public boolean isEnded() {
-		return ended;
+		return ended >= simulation;
+	}
+	
+	public boolean endedDefinitely() {
+		return ended >= 10000;
 	}
 	
 	public boolean choosingChildren() {

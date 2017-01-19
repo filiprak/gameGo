@@ -40,19 +40,12 @@ public class View {
 
 		//2. Optional: What happens when the frame closes?
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		//frame.setLayout(new BorderLayout());
 	
 		JPanel p = new JPanel(new BorderLayout());
 		p.setSize(new Dimension(100,400));
 		JPanel p2 = new JPanel(new BorderLayout());
 		p2.setSize(new Dimension(300,400));
 		JButton b = new JButton("test");
-		//p2.add(b);
-		//frame.add(p, BorderLayout.EAST);
-		//p.add(b);
-
-		//mP.showResults();
-		
 	    
 		controller = new Controller(this);
 	    
@@ -166,7 +159,6 @@ class GamePanel extends JPanel {
 		 int x_coordinate = (int)x;
 		 x_coordinate -= STARTING_POINT;
 		 
-		 System.out.println(x_coordinate);
 		 if( x_coordinate % STONES_DISTANCE > 80) return -1;
 		 int pos = (int)(x_coordinate / STONES_DISTANCE);
 		 return pos > 4 ? -1 : pos;
@@ -185,7 +177,6 @@ class GamePanel extends JPanel {
 
 	/**
 	 * class managing mouse actions
-	 * @author Michał Glinka
 	 *
 	 */
 	private class MouseHandler extends MouseAdapter
@@ -224,7 +215,7 @@ class MenuPanel extends JPanel{
 		this.newGame.setPreferredSize(new Dimension(200,100));
 		this.newGame.addActionListener(new mPActionListener());
 		this.add(newGame);
-		this.pas = new JButton("End");
+		this.pas = new JButton("Pas");
 		this.pas.setPreferredSize(new Dimension(200,100));
 		this.pas.addActionListener(new mPActionListener());
 		this.add(pas);
@@ -251,15 +242,15 @@ class MenuPanel extends JPanel{
 		frame.setLocation(szer/3, wys/3);
 		c.getCountPoints();
 		if(c.getBlackPoints() < c.getWhitePoints()) {
-			JLabel wW = new JLabel("<html>Wygrał Biały! <br> Punkty Białego:<html>" + Double.toString(c.getWhitePoints()) + "<html><br> Punkty Czarnego: <html>" + Double.toString(c.getBlackPoints()));
+			JLabel wW = new JLabel("<html>White wins! <br> White Points:<html>" + Double.toString(c.getWhitePoints()) + "<html><br> Black Points: <html>" + Double.toString(c.getBlackPoints()));
 			frame.add(wW);
 		}
 		else if(c.getBlackPoints() > c.getWhitePoints()) {
-			JLabel bW = new JLabel("<html>Wygrał Czarny!<br> Punkty Białego:<html>" + Double.toString(c.getWhitePoints()) + "<html><br> Punkty Czarnego: <html>" + Double.toString(c.getBlackPoints()));
+			JLabel bW = new JLabel("<html>Black wins!<br> White Points:<html>" + Double.toString(c.getWhitePoints()) + "<html><br> Black Points: <html>" + Double.toString(c.getBlackPoints()));
 			frame.add(bW);
 		}
 		else {
-			JLabel dW = new JLabel("<html>Remis! <br> Punkty Białego:<html>" + Double.toString(c.getWhitePoints()) + "<html><br> Punkty Czarnego: <html>" + Double.toString(c.getBlackPoints()));
+			JLabel dW = new JLabel("<html>Draw! <br> White Points:<html>" + Double.toString(c.getWhitePoints()) + "<html><br> Black Points: <html>" + Double.toString(c.getBlackPoints()));
 			frame.add(dW);
 		}
 		frame.setVisible(true);
@@ -310,12 +301,13 @@ class OptionsWindow
 	JSpinner childrenLimit;
 	JSpinner childrenLimitJump;
 	JSpinner explorationRatio;
-	JSpinner koiPoints;
+	JSpinner komiPoints;
 	JSpinner treeDepth;
 	JSpinner simulationsPerNode;
 	
 	JCheckBox playWhite;
 	JCheckBox chooseParent;
+	JCheckBox decreaseLimit;
 	
 	public OptionsWindow(Controller c, int width, int height) 
 	{
@@ -343,8 +335,12 @@ class OptionsWindow
 		treeDepth = createSpinner(options.treeDepth, 1, 30, 1);
 		frame.add(createPanel("Maximum tree depth: ", treeDepth));
 		
-		koiPoints = createSpinner(options.koi_points, 0, 25, 1.0);
-		frame.add(createPanel("Koi points", koiPoints));
+		komiPoints = createSpinner(options.komi_points, 0, 25, 1.0);
+		frame.add(createPanel("Komi points", komiPoints));
+		
+		decreaseLimit = new JCheckBox();
+		decreaseLimit.setSelected(options.decreasingLimit);
+		frame.add(createPanel("Decrease tree broad ratio with every move: ", decreaseLimit));
 		
 		playWhite = new JCheckBox();
 		playWhite.setSelected(options.newGameColor == Board.WHITESGN);
@@ -438,11 +434,12 @@ class OptionsWindow
 		options.children_limit = ((Double)childrenLimit.getValue()).intValue();
 		options.children_limit_jump = ((Double)childrenLimitJump.getValue()).intValue();
 		options.exploration_ratio = (Double)explorationRatio.getValue();
-		options.koi_points = (Double)koiPoints.getValue();
+		options.komi_points = (Double)komiPoints.getValue();
 		options.newGameColor = playWhite.isSelected() ? Board.WHITESGN : Board.BLACKSGN;
 		options.treeDepth = ((Double)treeDepth.getValue()).intValue();
 		options.simulationsPerNode = ((Double)simulationsPerNode.getValue()).intValue();
 		options.exploreParent = chooseParent.isSelected();
+		options.decreasingLimit = decreaseLimit.isSelected();
 		return options;
 	}
 }

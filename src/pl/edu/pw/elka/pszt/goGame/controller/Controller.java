@@ -90,13 +90,13 @@ public class Controller {
 	public AIOptions getOptions() {
 		AIOptions options = AI.getOptions();
 		options.newGameColor = this.newGameColor;
-		options.koi_points = model.getKoitPoints();
+		options.komi_points = model.getKomitPoints();
 		return options;
 	}
 	
 	public void setOptions(AIOptions options) {
 		newGameColor = options.newGameColor;
-		model.setKoiPoints(options.koi_points);
+		model.setKomiPoints(options.komi_points);
 		AI.setOptions(options);
 	}
 	

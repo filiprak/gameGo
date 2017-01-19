@@ -6,7 +6,7 @@ public class Model {
 	Board board; //board of a game
 	public static final int WHITEPLAYER = 0, BLACKPLAYER = 1; //int's for players
 	private char currentTurn;
-	private static double KOI = 2.5;
+	private static double KOMI = 2.5;
 	
 	public Model(char firstPlayer) {
 		board = new Board(firstPlayer);
@@ -75,7 +75,7 @@ public class Model {
 	public static void countPoints (Board currentBoard)
 	{
 		int cross;
-		currentBoard.setWhitePoints(currentBoard.getWhitePoints() + KOI);
+		currentBoard.setWhitePoints(currentBoard.getWhitePoints() + KOMI);
 		for (int y = 0; y < Board.BOARDSIZE; ++y) {
 			for (int x = 0; x < Board.BOARDSIZE; ++x) {
 				cross = Board.BOARDSIZE * y + x;
@@ -222,10 +222,10 @@ public class Model {
 	public double getBlackPoints() {
 		return board.getBlackPoints();
 	}
-	public void setKoiPoints(double k) {
-		KOI = k;
+	public void setKomiPoints(double k) {
+		KOMI = k;
 	}
-	public double getKoitPoints() {
-		return KOI;
+	public double getKomitPoints() {
+		return KOMI;
 	}
 }
