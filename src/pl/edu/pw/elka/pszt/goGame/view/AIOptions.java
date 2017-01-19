@@ -12,4 +12,5 @@ public class AIOptions {
 	public int simulationsPerNode;
 	public int treeDepth;
 	public boolean decreasingLimit;
+	public boolean winOnlyRatio;
 }

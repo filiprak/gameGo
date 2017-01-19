@@ -308,6 +308,7 @@ class OptionsWindow
 	JCheckBox playWhite;
 	JCheckBox chooseParent;
 	JCheckBox decreaseLimit;
+	JCheckBox winOnlyRatio;
 	
 	public OptionsWindow(Controller c, int width, int height) 
 	{
@@ -345,6 +346,10 @@ class OptionsWindow
 		playWhite = new JCheckBox();
 		playWhite.setSelected(options.newGameColor == Board.WHITESGN);
 		frame.add(createPanel("Start as white: ", playWhite));
+		
+		winOnlyRatio = new JCheckBox();
+		winOnlyRatio.setSelected(options.winOnlyRatio);
+		frame.add(createPanel("Calculate ratio from wins only: ", winOnlyRatio));
 		
 		chooseParent = new JCheckBox();
 		chooseParent.setSelected(options.exploreParent);
@@ -440,6 +445,7 @@ class OptionsWindow
 		options.simulationsPerNode = ((Double)simulationsPerNode.getValue()).intValue();
 		options.exploreParent = chooseParent.isSelected();
 		options.decreasingLimit = decreaseLimit.isSelected();
+		options.winOnlyRatio = winOnlyRatio.isSelected();
 		return options;
 	}
 }

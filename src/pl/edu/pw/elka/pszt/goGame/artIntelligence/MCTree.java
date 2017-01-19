@@ -23,6 +23,7 @@ public class MCTree {
 	private int TREE_DEPTH = 5;
 	private boolean DECREASING_LIMIT = false;
 	private int NOPAS_CHANCE = 3;
+	private boolean WIN_ONLY_RATIO = false;
 	
 	private MCNode root;
 	private String string, offset;
@@ -50,6 +51,7 @@ public class MCTree {
 		SIMULATIONS_PER_NODE = options.simulationsPerNode;
 		TREE_DEPTH = options.treeDepth;
 		DECREASING_LIMIT = options.decreasingLimit;
+		WIN_ONLY_RATIO = options.winOnlyRatio;
 	}
 	
 	public AIOptions getOptions() {
@@ -62,6 +64,7 @@ public class MCTree {
 		options.simulationsPerNode = SIMULATIONS_PER_NODE;
 		options.treeDepth = TREE_DEPTH;
 		options.decreasingLimit = DECREASING_LIMIT;
+		options.winOnlyRatio = WIN_ONLY_RATIO;
 		return options;
 	}
 
@@ -301,7 +304,13 @@ public class MCTree {
 	}
 	
 	private float calculateRatio(MCNode parent, MCNode child) {
-		float ratio = (float) child.wonGames / (child.wonGames + child.lostGames);
+		float ratio = 0;
+		if( parent.getBoard().getCurrentTurn() == stonesColor || WIN_ONLY_RATIO ) {
+			ratio = (float) child.wonGames / (child.wonGames + child.lostGames);
+		}
+		else {
+			ratio = (float) child.lostGames / (child.wonGames + child.lostGames);
+		}
 		ratio += EXPLORATION_RATIO * Math.sqrt(Math.log(parent.wonGames + parent.lostGames) / 
 				(child.wonGames + child.lostGames));
 		//float ratio = (float) child.wonGames / (child.wonGames + child.lostGames);
